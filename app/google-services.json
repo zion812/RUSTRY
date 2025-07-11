@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1063215742174",
+    "project_id": "rustry-rio",
+    "storage_bucket": "rustry-rio.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063215742174:android:78201fe16ac847ec3c164f",
+        "android_client_info": {
+          "package_name": "com.rio.rustry"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjcCGSxO1zjg-kPSVO5-oYfs49Yua5DT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
