@@ -5,14 +5,12 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.rio.rustry.data.model.Fowl
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
 import android.net.Uri
+import com.rio.rustry.di.FirebaseModule
 
-@Singleton
-class FowlRepository @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+class FowlRepository(
+    private val firestore: FirebaseFirestore = FirebaseModule.provideFirebaseFirestore(),
+    private val storage: FirebaseStorage = FirebaseModule.provideFirebaseStorage()
 ) {
     
     suspend fun addFowl(fowl: Fowl): Result<String> {

@@ -5,15 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.rio.rustry.data.model.*
 import com.rio.rustry.data.repository.PaymentRepository
 import com.rio.rustry.data.repository.AuthRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class TransactionHistoryViewModel @Inject constructor(
-    private val paymentRepository: PaymentRepository,
-    private val authRepository: AuthRepository
+class TransactionHistoryViewModel(
+    private val paymentRepository: PaymentRepository = PaymentRepository(),
+    private val authRepository: AuthRepository = AuthRepository()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(TransactionHistoryUiState())

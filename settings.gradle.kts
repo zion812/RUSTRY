@@ -8,6 +8,9 @@ pluginManagement {
             }
         }
         mavenCentral()
+        // Add Alibaba Maven mirror as fallback
+        maven("https://maven.aliyun.com/repository/central")
+        maven("https://maven.aliyun.com/repository/google")
         gradlePluginPortal()
     }
 }
@@ -16,6 +19,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Add Alibaba Maven mirror as fallback
+        maven("https://maven.aliyun.com/repository/central")
+        maven("https://maven.aliyun.com/repository/google")
     }
 }
 

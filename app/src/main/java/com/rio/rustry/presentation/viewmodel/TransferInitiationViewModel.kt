@@ -7,17 +7,14 @@ import com.rio.rustry.data.repository.TransferRepository
 import com.rio.rustry.data.repository.FowlRepository
 import com.rio.rustry.data.repository.AuthRepository
 import com.rio.rustry.data.repository.PaymentRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class TransferInitiationViewModel @Inject constructor(
-    private val transferRepository: TransferRepository,
-    private val fowlRepository: FowlRepository,
-    private val authRepository: AuthRepository,
-    private val paymentRepository: PaymentRepository
+class TransferInitiationViewModel(
+    private val transferRepository: TransferRepository = TransferRepository(),
+    private val fowlRepository: FowlRepository = FowlRepository(),
+    private val authRepository: AuthRepository = AuthRepository(),
+    private val paymentRepository: PaymentRepository = PaymentRepository()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(TransferInitiationUiState())

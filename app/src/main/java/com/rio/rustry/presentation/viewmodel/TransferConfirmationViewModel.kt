@@ -7,19 +7,14 @@ import com.rio.rustry.data.repository.TransferRepository
 import com.rio.rustry.data.repository.FowlRepository
 import com.rio.rustry.data.repository.AuthRepository
 import com.rio.rustry.data.repository.HealthRepository
-import com.rio.rustry.utils.CertificateGenerator
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class TransferConfirmationViewModel @Inject constructor(
-    private val transferRepository: TransferRepository,
-    private val fowlRepository: FowlRepository,
-    private val authRepository: AuthRepository,
-    private val healthRepository: HealthRepository,
-    private val certificateGenerator: CertificateGenerator
+class TransferConfirmationViewModel(
+    private val transferRepository: TransferRepository = TransferRepository(),
+    private val fowlRepository: FowlRepository = FowlRepository(),
+    private val authRepository: AuthRepository = AuthRepository(),
+    private val healthRepository: HealthRepository = HealthRepository()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(TransferConfirmationUiState())

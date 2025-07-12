@@ -6,13 +6,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.rio.rustry.data.model.User
 import com.rio.rustry.data.model.UserType
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-import javax.inject.Singleton
+import com.rio.rustry.di.FirebaseModule
 
-@Singleton
-class AuthRepository @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+class AuthRepository(
+    private val auth: FirebaseAuth = FirebaseModule.provideFirebaseAuth(),
+    private val firestore: FirebaseFirestore = FirebaseModule.provideFirebaseFirestore()
 ) {
     
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
@@ -91,29 +89,23 @@ class AuthRepository @Inject constructor(
     
     suspend fun getUserByEmail(email: String): Result<User> {
         return try {
-            if (networkUtils.isOnline()) {
-                // Query Firestore for user by email
-                val querySnapshot = firestore.collection("users")
-                    .whereEqualTo("email", email)
-                    .limit(1)
-                    .get()
-                    .await()
-                
-                if (!querySnapshot.isEmpty) {
-                    val document = querySnapshot.documents.first()
-                    val user = document.toObject(User::class.java)
-                    if (user != null) {
-                        // Cache the user data locally
-                        userDao.insertUser(user.toEntity())
-                        Result.success(user)
-                    } else {
-                        Result.failure(Exception("User not found"))
-                    }
+            // Query Firestore for user by email
+            val querySnapshot = firestore.collection("users")
+                .whereEqualTo("email", email)
+                .limit(1)
+                .get()
+                .await()
+            
+            if (!querySnapshot.isEmpty) {
+                val document = querySnapshot.documents.first()
+                val user = document.toObject(User::class.java)
+                if (user != null) {
+                    Result.success(user)
                 } else {
                     Result.failure(Exception("User not found"))
                 }
             } else {
-                Result.failure(Exception("Cannot search users while offline"))
+                Result.failure(Exception("User not found"))
             }
         } catch (e: Exception) {
             Result.failure(e)

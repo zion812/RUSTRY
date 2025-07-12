@@ -5,17 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.rio.rustry.data.model.*
 import com.rio.rustry.data.repository.HealthRepository
 import com.rio.rustry.data.repository.FowlRepository
-import com.rio.rustry.utils.AIHealthService
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.rio.rustry.data.service.AIHealthService
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class HealthDashboardViewModel @Inject constructor(
-    private val healthRepository: HealthRepository,
-    private val fowlRepository: FowlRepository,
-    private val aiHealthService: AIHealthService
+class HealthDashboardViewModel(
+    private val healthRepository: HealthRepository = HealthRepository(),
+    private val fowlRepository: FowlRepository = FowlRepository(),
+    private val aiHealthService: AIHealthService = AIHealthService()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(HealthDashboardUiState())

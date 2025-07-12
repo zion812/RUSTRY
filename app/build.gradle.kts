@@ -4,18 +4,19 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
-    alias(libs.plugins.hilt.android)
-    kotlin("kapt")
+    // Temporarily disable Hilt to fix KAPT issues
+    // alias(libs.plugins.hilt.android)
+    // kotlin("kapt")
 }
 
 android {
     namespace = "com.rio.rustry"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.rio.rustry"
         minSdk = 23
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -174,20 +175,21 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.room:room-paging:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    // Temporarily disable KAPT
+    // kapt("androidx.room:room-compiler:2.6.1")
     
     // WorkManager for sync
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-    implementation("androidx.hilt:hilt-work:1.1.0")
+    // implementation("androidx.hilt:hilt-work:1.1.0")
     
     // Google Pay integration
     implementation("com.google.android.gms:play-services-wallet:19.2.1")
     
-    // Dependency Injection (Hilt) - Updated to latest stable version
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    kapt("androidx.hilt:hilt-compiler:1.2.0")
+    // Dependency Injection (Hilt) - Temporarily disabled
+    // implementation("com.google.dagger:hilt-android:2.51.1")
+    // kapt("com.google.dagger:hilt-compiler:2.51.1")
+    // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    // kapt("androidx.hilt:hilt-compiler:1.2.0")
     
     // Add explicit JavaPoet dependency for compatibility
     implementation("com.squareup:javapoet:1.13.0")
@@ -232,8 +234,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation("androidx.navigation:navigation-testing:2.8.3")
     androidTestImplementation("androidx.work:work-testing:2.9.0")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
+    // androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    // kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
     
     // Debug dependencies
     debugImplementation(libs.androidx.ui.tooling)

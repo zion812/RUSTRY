@@ -6,18 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.rio.rustry.data.model.Fowl
 import com.rio.rustry.data.repository.AuthRepository
 import com.rio.rustry.data.repository.FowlRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
-import javax.inject.Inject
 
-@HiltViewModel
-class AddFowlViewModel @Inject constructor(
-    private val fowlRepository: FowlRepository,
-    private val authRepository: AuthRepository
+class AddFowlViewModel(
+    private val fowlRepository: FowlRepository = FowlRepository(),
+    private val authRepository: AuthRepository = AuthRepository()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(AddFowlUiState())

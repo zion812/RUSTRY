@@ -6,17 +6,14 @@ import com.rio.rustry.data.model.*
 import com.rio.rustry.data.repository.PaymentRepository
 import com.rio.rustry.data.repository.FowlRepository
 import com.rio.rustry.data.repository.AuthRepository
-import com.rio.rustry.utils.GooglePayHelper
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.rio.rustry.data.service.GooglePayHelper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class PaymentViewModel @Inject constructor(
-    private val paymentRepository: PaymentRepository,
-    private val fowlRepository: FowlRepository,
-    private val authRepository: AuthRepository
+class PaymentViewModel(
+    private val paymentRepository: PaymentRepository = PaymentRepository(),
+    private val fowlRepository: FowlRepository = FowlRepository(),
+    private val authRepository: AuthRepository = AuthRepository()
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(PaymentUiState())
