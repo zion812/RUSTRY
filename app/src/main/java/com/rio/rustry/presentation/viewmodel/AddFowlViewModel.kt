@@ -3,29 +3,22 @@ package com.rio.rustry.presentation.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.rio.rustry.data.model.Fowl
 import com.rio.rustry.data.repository.AuthRepository
 import com.rio.rustry.data.repository.FowlRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
-class AddFowlViewModel : ViewModel() {
-    
-    private val fowlRepository = FowlRepository(
-        FirebaseFirestore.getInstance(),
-        FirebaseStorage.getInstance()
-    )
-    
-    private val authRepository = AuthRepository(
-        FirebaseAuth.getInstance(),
-        FirebaseFirestore.getInstance()
-    )
+@HiltViewModel
+class AddFowlViewModel @Inject constructor(
+    private val fowlRepository: FowlRepository,
+    private val authRepository: AuthRepository
+) : ViewModel() {
     
     private val _uiState = MutableStateFlow(AddFowlUiState())
     val uiState: StateFlow<AddFowlUiState> = _uiState.asStateFlow()

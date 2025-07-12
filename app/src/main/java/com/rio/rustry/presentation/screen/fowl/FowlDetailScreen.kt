@@ -31,6 +31,7 @@ fun FowlDetailScreen(
     onNavigateBack: () -> Unit,
     onContactSeller: (String) -> Unit,
     onNavigateToParent: (String) -> Unit,
+    onNavigateToPayment: (String) -> Unit = {},
     fowlDetailViewModel: FowlDetailViewModel = viewModel()
 ) {
     val uiState by fowlDetailViewModel.uiState.collectAsState()
