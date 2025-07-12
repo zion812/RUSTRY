@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
@@ -91,7 +90,7 @@ android {
     }
     
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
     
     packaging {
@@ -184,11 +183,14 @@ dependencies {
     // Google Pay integration
     implementation("com.google.android.gms:play-services-wallet:19.2.1")
     
-    // Dependency Injection (Hilt)
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-compiler:2.48")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    kapt("androidx.hilt:hilt-compiler:1.1.0")
+    // Dependency Injection (Hilt) - Updated to latest stable version
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
+    
+    // Add explicit JavaPoet dependency for compatibility
+    implementation("com.squareup:javapoet:1.13.0")
     
     // Paging for large datasets
     implementation("androidx.paging:paging-runtime-ktx:3.2.1")
@@ -230,8 +232,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation("androidx.navigation:navigation-testing:2.8.3")
     androidTestImplementation("androidx.work:work-testing:2.9.0")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
-    kaptAndroidTest("com.google.dagger:hilt-compiler:2.48")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
     
     // Debug dependencies
     debugImplementation(libs.androidx.ui.tooling)
