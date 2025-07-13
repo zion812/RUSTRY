@@ -8,9 +8,14 @@ pluginManagement {
             }
         }
         mavenCentral()
-        // Add Alibaba Maven mirror as fallback
-        maven("https://maven.aliyun.com/repository/central")
-        maven("https://maven.aliyun.com/repository/google")
+        // Add reliable mirror repositories as fallback
+        maven("https://repo.spring.io/milestone") {
+            name = "SpringMilestone"
+        }
+        // JitPack as additional fallback
+        maven("https://jitpack.io") {
+            name = "JitPack"
+        }
         gradlePluginPortal()
     }
 }
@@ -19,9 +24,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // Add Alibaba Maven mirror as fallback
-        maven("https://maven.aliyun.com/repository/central")
-        maven("https://maven.aliyun.com/repository/google")
+        // Add reliable mirror repositories as fallback
+        maven("https://repo.spring.io/milestone") {
+            name = "SpringMilestone"
+        }
+        // JitPack as additional fallback
+        maven("https://jitpack.io") {
+            name = "JitPack"
+        }
     }
 }
 

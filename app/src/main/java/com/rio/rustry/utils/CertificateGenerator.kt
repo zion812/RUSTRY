@@ -13,11 +13,7 @@ import com.rio.rustry.data.model.*
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
-import javax.inject.Singleton
-
-@Singleton
-class CertificateGenerator @Inject constructor() {
+class CertificateGenerator() {
     
     companion object {
         private const val PAGE_WIDTH = 595 // A4 width in points
@@ -297,7 +293,7 @@ class CertificateGenerator @Inject constructor() {
         
         // Generation timestamp
         canvas.drawText(
-            "Generated on ${SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault()).format(Date().apply { time =  })}",
+            "Generated on ${SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault()).format(Date())}",
             PAGE_WIDTH / 2f,
             footerY + 5,
             paint

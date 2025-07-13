@@ -68,6 +68,34 @@ class CertificateViewModel(
         }
     }
     
+    fun verifyCertificateOnline(certificateId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isVerifying = true)
+            
+            try {
+                // Online verification with blockchain/external service
+                val result = transferRepository.verifyCertificate(certificateId)
+                if (result.isSuccess) {
+                    _uiState.value = _uiState.value.copy(
+                        isVerified = true,
+                        isVerifying = false,
+                        verificationMessage = "Certificate verified online successfully"
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Online certificate verification failed",
+                        isVerifying = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Online verification failed",
+                    isVerifying = false
+                )
+            }
+        }
+    }
+    
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
@@ -78,5 +106,6 @@ data class CertificateUiState(
     val isLoading: Boolean = false,
     val isVerifying: Boolean = false,
     val isVerified: Boolean = false,
+    val verificationMessage: String? = null,
     val error: String? = null
 )

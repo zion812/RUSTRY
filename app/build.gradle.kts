@@ -123,15 +123,15 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation("androidx.core:core-splashscreen:1.0.1")
     
-    // Compose BOM and UI
+    // Compose BOM and UI - Use BOM for consistent versioning
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.compose.animation:animation:1.7.8")
-    implementation("androidx.compose.foundation:foundation:1.7.8")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.animation:animation")
+    implementation("androidx.compose.foundation:foundation")
     
     // Firebase (optimized)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
@@ -240,6 +240,5 @@ dependencies {
     // Debug dependencies
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    debugImplementation("androidx.compose.ui:ui-tooling:1.7.8")
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
 }

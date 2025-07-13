@@ -259,7 +259,7 @@ class TransferRepository(
                 .update(
                     mapOf(
                         "status" to TransferStatus.COMPLETED,
-                        "completedDate" to java.util.Date(),
+                        "completedDate" to System.currentTimeMillis(),
                         "updatedAt" to System.currentTimeMillis()
                     )
                 )
@@ -301,11 +301,11 @@ class TransferRepository(
                 
                 when (userId) {
                     transfer.fromUserId -> {
-                        updateMap["sellerConfirmedAt"] = java.util.Date()
+                        updateMap["sellerConfirmedAt"] = System.currentTimeMillis()
                         updateMap["status"] = TransferStatus.SELLER_CONFIRMED
                     }
                     transfer.toUserId -> {
-                        updateMap["buyerConfirmedAt"] = java.util.Date()
+                        updateMap["buyerConfirmedAt"] = System.currentTimeMillis()
                         updateMap["status"] = TransferStatus.BUYER_CONFIRMED
                     }
                 }
@@ -330,7 +330,7 @@ class TransferRepository(
                 .update(
                     mapOf(
                         "status" to TransferStatus.CANCELLED,
-                        "cancelledDate" to java.util.Date(),
+                        "cancelledDate" to System.currentTimeMillis(),
                         "updatedAt" to System.currentTimeMillis()
                     )
                 )
@@ -351,7 +351,7 @@ class TransferRepository(
                     transferId = transferId,
                     certificateType = CertificateType.TRANSFER,
                     certificateNumber = "CERT-${System.currentTimeMillis()}",
-                    issueDate = java.util.Date(),
+                    issueDate = System.currentTimeMillis(),
                     isValid = true,
                     issuedBy = "Rooster Platform",
                     certificateVersion = "1.0"

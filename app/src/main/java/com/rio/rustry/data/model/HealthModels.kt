@@ -108,17 +108,17 @@ data class AIHealthTip(
 
 data class CertificateHealthSummary(
     val overallStatus: HealthStatus = HealthStatus.GOOD,
-    val lastCheckupDate: Date? = null,
-    val lastVaccinationDate: Date? = null,
+    val lastCheckupDate: Long? = null,
+    val lastVaccinationDate: Long? = null,
     val vaccinationStatus: VaccinationStatus = VaccinationStatus.UP_TO_DATE,
     val vaccinationCount: Int = 0,
     val activeIssues: List<String> = emptyList(),
     val healthScore: Int = 100,
     val healthRecordsCount: Int = 0,
-    val vetCertificates: List<String> = emptyList(),
+    val vetCertificates: Int = 0,
     val currentMedications: List<String> = emptyList(),
     val veterinarianCertification: String = "",
-    val certificationDate: Date = Date()
+    val certificationDate: Long = System.currentTimeMillis()
 )
 
 // Enums

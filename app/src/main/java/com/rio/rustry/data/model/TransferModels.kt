@@ -49,12 +49,12 @@ data class DigitalCertificate(
     val transferId: String = "",
     val certificateType: CertificateType = CertificateType.OWNERSHIP,
     val certificateNumber: String = "",
-    val issueDate: Date = Date(),
-    val expiryDate: Date? = null,
-    val validUntil: Date? = null,
+    val issueDate: Long = System.currentTimeMillis(),
+    val expiryDate: Long? = null,
+    val validUntil: Long? = null,
     val isValid: Boolean = true,
     val issuedBy: String = "",
-    val revokedAt: Date? = null,
+    val revokedAt: Long? = null,
     val revokedReason: String = "",
     val qrCode: String = "",
     val qrCodeData: String = "",
@@ -63,8 +63,11 @@ data class DigitalCertificate(
     val certificateVersion: String = "1.0",
     val fowlDetails: FowlCertificateDetails? = null,
     val healthSummary: CertificateHealthSummary? = null,
-    val transferDetails: TransferCertificateDetails? = null,
+    val transferDetails: TransferCertificateDetails = TransferCertificateDetails(),
     val lineage: List<LineageEntry> = emptyList(),
+    val lineageHistory: List<LineageEntry> = emptyList(),
+    val currentOwnerName: String = "",
+    val previousOwnerName: String = "",
     val verificationUrl: String = "",
     val metadata: Map<String, String> = emptyMap(),
     val createdAt: Long = System.currentTimeMillis(),
@@ -74,7 +77,7 @@ data class DigitalCertificate(
 data class FowlCertificateDetails(
     val fowlId: String = "",
     val breed: String = "",
-    val dateOfBirth: Date = Date(),
+    val dateOfBirth: Long = System.currentTimeMillis(),
     val gender: String = "",
     val color: String = "",
     val weight: Double = 0.0,
@@ -86,7 +89,8 @@ data class FowlCertificateDetails(
     val dnaProfile: String = "",
     val registrationNumber: String = "",
     val currentOwnerName: String = "",
-    val previousOwnerName: String = ""
+    val previousOwnerName: String = "",
+    val lineageHistory: List<LineageEntry> = emptyList()
 )
 
 data class TransferCertificateDetails(

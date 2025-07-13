@@ -115,13 +115,13 @@ fun CertificateViewScreen(
                 CertificateValidityCard(certificate = certificate)
                 
                 // Fowl Information
-                FowlDetailsCard(fowlDetails = certificate.fowlDetails)
+                FowlDetailsCard(fowlDetails = certificate.fowlDetails ?: FowlCertificateDetails())
                 
                 // Ownership Information
                 OwnershipDetailsCard(certificate = certificate)
                 
                 // Health Summary
-                HealthSummaryCard(healthSummary = certificate.healthSummary)
+                HealthSummaryCard(healthSummary = certificate.healthSummary ?: CertificateHealthSummary())
                 
                 // Transfer Details
                 if (certificate.transferDetails.transferType != TransferType.SALE || certificate.transferDetails.transferPrice > 0) {
@@ -260,7 +260,7 @@ private fun CertificateValidityCard(certificate: DigitalCertificate) {
                 
                 if (certificate.validUntil != null) {
                     Text(
-                        text = "Valid until: ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = certificate.validUntil })}",
+                        text = "Valid until: ${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(certificate.validUntil))}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -293,7 +293,7 @@ private fun FowlDetailsCard(fowlDetails: FowlCertificateDetails) {
             
             CertificateDetailRow(
                 label = "Date of Birth:",
-                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = fowlDetails.dateOfBirth })
+                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(fowlDetails.dateOfBirth))
             )
             
             CertificateDetailRow(
@@ -371,7 +371,7 @@ private fun OwnershipDetailsCard(certificate: DigitalCertificate) {
             
             CertificateDetailRow(
                 label = "Ownership Date:",
-                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = certificate.transferDetails.transferDate })
+                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(certificate.transferDetails.transferDate))
             )
         }
     }
@@ -413,13 +413,13 @@ private fun HealthSummaryCard(healthSummary: CertificateHealthSummary) {
             
             CertificateDetailRow(
                 label = "Vaccination Status:",
-                value = healthSummary.vaccinationStatus
+                value = healthSummary.vaccinationStatus.displayName
             )
             
             if (healthSummary.lastVaccinationDate != null) {
                 CertificateDetailRow(
                     label = "Last Vaccination:",
-                    value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = healthSummary.lastVaccinationDate })
+                    value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(healthSummary.lastVaccinationDate))
                 )
             }
             
@@ -482,7 +482,7 @@ private fun TransferDetailsCard(transferDetails: TransferCertificateDetails) {
             
             CertificateDetailRow(
                 label = "Transfer Date:",
-                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = transferDetails.transferDate })
+                value = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(transferDetails.transferDate))
             )
             
             CertificateDetailRow(
@@ -595,7 +595,7 @@ private fun CertificateMetadataCard(certificate: DigitalCertificate) {
             
             CertificateDetailRow(
                 label = "Issue Date:",
-                value = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date().apply { time = certificate.issueDate })
+                value = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(certificate.issueDate))
             )
             
             CertificateDetailRow(
