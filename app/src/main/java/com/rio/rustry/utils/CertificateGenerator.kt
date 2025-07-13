@@ -118,7 +118,7 @@ class CertificateGenerator @Inject constructor() {
             yPosition = drawSection(canvas, paint, "PREVIOUS OWNER", yPosition)
             yPosition = drawKeyValue(canvas, paint, "Previous Owner:", certificate.previousOwnerName, yPosition)
             yPosition = drawKeyValue(canvas, paint, "Transfer Date:", 
-                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(certificate.transferDetails.transferDate)), yPosition)
+                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = certificate.transferDetails.transferDate }), yPosition)
             yPosition = drawKeyValue(canvas, paint, "Transfer Type:", certificate.transferDetails.transferType.displayName, yPosition)
             if (certificate.transferDetails.transferPrice > 0) {
                 yPosition = drawKeyValue(canvas, paint, "Transfer Price:", 
@@ -145,7 +145,7 @@ class CertificateGenerator @Inject constructor() {
         // Certificate Details Section
         yPosition = drawSection(canvas, paint, "CERTIFICATE DETAILS", yPosition)
         yPosition = drawKeyValue(canvas, paint, "Issue Date:", 
-            SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(certificate.issueDate)), yPosition)
+            SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date().apply { time = certificate.issueDate }), yPosition)
         yPosition = drawKeyValue(canvas, paint, "Issued By:", certificate.issuedBy, yPosition)
         yPosition = drawKeyValue(canvas, paint, "Certificate Version:", certificate.certificateVersion, yPosition)
         yPosition = drawKeyValue(canvas, paint, "Verification URL:", certificate.verificationUrl, yPosition)
@@ -297,7 +297,7 @@ class CertificateGenerator @Inject constructor() {
         
         // Generation timestamp
         canvas.drawText(
-            "Generated on ${SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault()).format(Date())}",
+            "Generated on ${SimpleDateFormat("MMM dd, yyyy HH:mm:ss", Locale.getDefault()).format(Date().apply { time =  })}",
             PAGE_WIDTH / 2f,
             footerY + 5,
             paint
@@ -397,7 +397,7 @@ class CertificateGenerator @Inject constructor() {
         
         if (healthSummary.lastVaccinationDate != null) {
             yPosition = drawKeyValue(canvas, paint, "Last Vaccination:", 
-                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(healthSummary.lastVaccinationDate)), yPosition)
+                SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = healthSummary.lastVaccinationDate }), yPosition)
         }
         yPosition += 20
         
@@ -406,7 +406,7 @@ class CertificateGenerator @Inject constructor() {
             yPosition = drawSection(canvas, paint, "RECENT HEALTH RECORDS", yPosition)
             
             healthRecords.take(10).forEach { record ->
-                val dateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(record.date))
+                val dateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = record.date })
                 yPosition = drawKeyValue(canvas, paint, dateStr, "${record.type.displayName}: ${record.title}", yPosition)
             }
         }
@@ -446,7 +446,7 @@ class CertificateGenerator @Inject constructor() {
                     </div>
                     <div class="key-value">
                         <span class="key">Date of Birth:</span>
-                        <span class="value">${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(certificate.fowlDetails.dateOfBirth))}</span>
+                        <span class="value">${SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date().apply { time = certificate.fowlDetails.dateOfBirth })}</span>
                     </div>
                     <div class="key-value">
                         <span class="key">Traceability:</span>
@@ -478,7 +478,7 @@ class CertificateGenerator @Inject constructor() {
                     <h3>Certificate Details</h3>
                     <div class="key-value">
                         <span class="key">Issue Date:</span>
-                        <span class="value">${SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(certificate.issueDate))}</span>
+                        <span class="value">${SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date().apply { time = certificate.issueDate })}</span>
                     </div>
                     <div class="key-value">
                         <span class="key">Verification URL:</span>

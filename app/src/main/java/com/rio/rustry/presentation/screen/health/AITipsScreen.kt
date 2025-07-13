@@ -236,7 +236,10 @@ private fun AITipDetailCard(
                             TipCategory.HOUSING -> Icons.Default.Home
                             TipCategory.BREEDING -> Icons.Default.Favorite
                             TipCategory.DISEASE_PREVENTION -> Icons.Default.HealthAndSafety
+                            TipCategory.GENERAL -> Icons.Default.Pets
                             TipCategory.GENERAL_CARE -> Icons.Default.Pets
+                            TipCategory.BEHAVIOR -> Icons.Default.Psychology
+                            TipCategory.SEASONAL -> Icons.Default.WbSunny
                             TipCategory.SEASONAL_CARE -> Icons.Default.WbSunny
                             TipCategory.EMERGENCY -> Icons.Default.Emergency
                             TipCategory.MEDICATION -> Icons.Default.Medication

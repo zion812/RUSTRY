@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.rio.rustry.data.model.PaymentMethod
+import com.rio.rustry.data.model.PaymentMethodEnum
 import com.rio.rustry.presentation.viewmodel.PaymentViewModel
 import com.rio.rustry.presentation.viewmodel.PaymentResult
 import java.text.NumberFormat
@@ -33,7 +33,7 @@ fun PaymentScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     
-    var selectedPaymentMethod by remember { mutableStateOf(PaymentMethod.GOOGLE_PAY) }
+    var selectedPaymentMethod by remember { mutableStateOf(PaymentMethodEnum.GOOGLE_PAY) }
     
     // Initialize payment
     LaunchedEffect(fowlId) {
@@ -183,9 +183,9 @@ fun PaymentScreen(
                                 icon = Icons.Default.Payment,
                                 title = "Google Pay",
                                 subtitle = "Fast & Secure",
-                                isSelected = selectedPaymentMethod == PaymentMethod.GOOGLE_PAY,
+                                isSelected = selectedPaymentMethod == PaymentMethodEnum.GOOGLE_PAY,
                                 isEnabled = true,
-                                onClick = { selectedPaymentMethod = PaymentMethod.GOOGLE_PAY }
+                                onClick = { selectedPaymentMethod = PaymentMethodEnum.GOOGLE_PAY }
                             )
                             
                             // UPI Option
@@ -193,9 +193,9 @@ fun PaymentScreen(
                                 icon = Icons.Default.AccountBalance,
                                 title = "UPI",
                                 subtitle = "Pay using any UPI app",
-                                isSelected = selectedPaymentMethod == PaymentMethod.UPI,
+                                isSelected = selectedPaymentMethod == PaymentMethodEnum.UPI,
                                 isEnabled = true,
-                                onClick = { selectedPaymentMethod = PaymentMethod.UPI }
+                                onClick = { selectedPaymentMethod = PaymentMethodEnum.UPI }
                             )
                         }
                     }

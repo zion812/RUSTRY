@@ -380,7 +380,7 @@ private fun TransferDetailsCard(transfer: OwnershipTransfer) {
             
             TransferDetailRow(
                 label = "Transfer Date:",
-                value = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(transfer.transferDate))
+                value = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date().apply { time = transfer.transferDate })
             )
             
             if (transfer.notes.isNotEmpty()) {
@@ -705,7 +705,7 @@ private fun TimelineItem(
                 color = if (isCompleted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(timestamp)),
+                text = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date().apply { time = timestamp }),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
