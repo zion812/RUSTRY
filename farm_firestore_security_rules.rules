@@ -1,0 +1,330 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for authentication and authorization
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(ownerId) {
+      return isAuthenticated() && request.auth.uid == ownerId;
+    }
+    
+    function isValidUser() {
+      return isAuthenticated() && request.auth.uid != null;
+    }
+    
+    function hasValidTimestamp() {
+      return request.resource.data.keys().hasAll(['createdAt', 'updatedAt']) &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.updatedAt is timestamp;
+    }
+    
+    function isValidFarmData() {
+      return request.resource.data.keys().hasAll(['name', 'location', 'size', 'ownerId']) &&
+             request.resource.data.name is string &&
+             request.resource.data.name.size() > 0 &&
+             request.resource.data.location is string &&
+             request.resource.data.location.size() > 0 &&
+             request.resource.data.size is number &&
+             request.resource.data.size > 0 &&
+             request.resource.data.ownerId is string &&
+             request.resource.data.ownerId == request.auth.uid;
+    }
+    
+    function isValidFlockData() {
+      return request.resource.data.keys().hasAll(['farmId', 'breed', 'quantity']) &&
+             request.resource.data.farmId is string &&
+             request.resource.data.breed is string &&
+             request.resource.data.breed.size() > 0 &&
+             request.resource.data.quantity is number &&
+             request.resource.data.quantity > 0;
+    }
+    
+    function isValidHealthRecordData() {
+      return request.resource.data.keys().hasAll(['flockId', 'farmId', 'type', 'date']) &&
+             request.resource.data.flockId is string &&
+             request.resource.data.farmId is string &&
+             request.resource.data.type is string &&
+             request.resource.data.type in ['VACCINATION', 'TREATMENT', 'CHECKUP', 'MEDICATION', 'SURGERY', 'ROUTINE_CARE'] &&
+             request.resource.data.date is timestamp;
+    }
+    
+    function isValidSaleData() {
+      return request.resource.data.keys().hasAll(['farmId', 'buyerName', 'amount', 'saleDate']) &&
+             request.resource.data.farmId is string &&
+             request.resource.data.buyerName is string &&
+             request.resource.data.buyerName.size() > 0 &&
+             request.resource.data.amount is number &&
+             request.resource.data.amount > 0 &&
+             request.resource.data.saleDate is timestamp;
+    }
+    
+    function isValidInventoryData() {
+      return request.resource.data.keys().hasAll(['farmId', 'type', 'name', 'quantity']) &&
+             request.resource.data.farmId is string &&
+             request.resource.data.type is string &&
+             request.resource.data.type in ['FEED', 'MEDICINE', 'EQUIPMENT', 'SUPPLIES', 'BEDDING', 'SUPPLEMENTS'] &&
+             request.resource.data.name is string &&
+             request.resource.data.name.size() > 0 &&
+             request.resource.data.quantity is number &&
+             request.resource.data.quantity >= 0;
+    }
+    
+    function canAccessFarm(farmId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/farms/$(farmId)) &&
+             get(/databases/$(database)/documents/farms/$(farmId)).data.ownerId == request.auth.uid;
+    }
+    
+    function canAccessFlock(flockId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/flocks/$(flockId)) &&
+             canAccessFarm(get(/databases/$(database)/documents/flocks/$(flockId)).data.farmId);
+    }
+    
+    // Farm collection rules
+    match /farms/{farmId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.ownerId == request.auth.uid || 
+                      resource.data.isPublic == true);
+      
+      allow create: if isAuthenticated() && 
+                       isValidFarmData() && 
+                       hasValidTimestamp() &&
+                       request.resource.data.ownerId == request.auth.uid;
+      
+      allow update: if isAuthenticated() && 
+                       resource.data.ownerId == request.auth.uid &&
+                       isValidFarmData() &&
+                       request.resource.data.ownerId == resource.data.ownerId &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAuthenticated() && 
+                       resource.data.ownerId == request.auth.uid;
+    }
+    
+    // Flock collection rules
+    match /flocks/{flockId} {
+      allow read: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+      
+      allow create: if isAuthenticated() && 
+                       isValidFlockData() && 
+                       hasValidTimestamp() &&
+                       canAccessFarm(request.resource.data.farmId);
+      
+      allow update: if isAuthenticated() && 
+                       canAccessFarm(resource.data.farmId) &&
+                       isValidFlockData() &&
+                       request.resource.data.farmId == resource.data.farmId &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+    }
+    
+    // Health Records collection rules
+    match /health_records/{recordId} {
+      allow read: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+      
+      allow create: if isAuthenticated() && 
+                       isValidHealthRecordData() && 
+                       hasValidTimestamp() &&
+                       canAccessFarm(request.resource.data.farmId) &&
+                       canAccessFlock(request.resource.data.flockId);
+      
+      allow update: if isAuthenticated() && 
+                       canAccessFarm(resource.data.farmId) &&
+                       isValidHealthRecordData() &&
+                       request.resource.data.farmId == resource.data.farmId &&
+                       request.resource.data.flockId == resource.data.flockId &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+    }
+    
+    // Sales collection rules
+    match /sales/{saleId} {
+      allow read: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+      
+      allow create: if isAuthenticated() && 
+                       isValidSaleData() && 
+                       hasValidTimestamp() &&
+                       canAccessFarm(request.resource.data.farmId);
+      
+      allow update: if isAuthenticated() && 
+                       canAccessFarm(resource.data.farmId) &&
+                       isValidSaleData() &&
+                       request.resource.data.farmId == resource.data.farmId &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+    }
+    
+    // Inventory collection rules
+    match /inventory/{itemId} {
+      allow read: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+      
+      allow create: if isAuthenticated() && 
+                       isValidInventoryData() && 
+                       hasValidTimestamp() &&
+                       canAccessFarm(request.resource.data.farmId);
+      
+      allow update: if isAuthenticated() && 
+                       canAccessFarm(resource.data.farmId) &&
+                       isValidInventoryData() &&
+                       request.resource.data.farmId == resource.data.farmId &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAuthenticated() && canAccessFarm(resource.data.farmId);
+    }
+    
+    // Change Logs collection rules
+    match /change_logs/{logId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.userId == request.auth.uid ||
+                      canAccessFarm(resource.data.farmId));
+      
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['farmId', 'userId', 'entityType', 'entityId', 'action', 'timestamp']) &&
+                       request.resource.data.timestamp is timestamp &&
+                       canAccessFarm(request.resource.data.farmId);
+      
+      // Change logs are immutable once created
+      allow update: if false;
+      allow delete: if false;
+    }
+    
+    // Notifications collection rules
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'type', 'title', 'message', 'timestamp']) &&
+                       request.resource.data.timestamp is timestamp;
+      
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == resource.data.userId;
+      
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // User profiles collection rules
+    match /users/{userId} {
+      allow read: if isAuthenticated() && 
+                     (userId == request.auth.uid || 
+                      resource.data.isPublic == true);
+      
+      allow create: if isAuthenticated() && 
+                       userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['id', 'createdAt', 'updatedAt']) &&
+                       request.resource.data.id == request.auth.uid;
+      
+      allow update: if isAuthenticated() && 
+                       userId == request.auth.uid &&
+                       request.resource.data.id == resource.data.id &&
+                       request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAuthenticated() && userId == request.auth.uid;
+    }
+    
+    // Farm statistics (read-only computed data)
+    match /farm_statistics/{farmId} {
+      allow read: if isAuthenticated() && canAccessFarm(farmId);
+      allow write: if false; // Statistics are computed server-side
+    }
+    
+    // Public data that anyone can read (for marketplace)
+    match /public_farms/{farmId} {
+      allow read: if true; // Public farms can be read by anyone
+      allow write: if false; // Only server can write public farm data
+    }
+    
+    // System configuration (admin only)
+    match /system_config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admin/server can modify system config
+    }
+    
+    // Backup and audit logs (admin only)
+    match /audit_logs/{logId} {
+      allow read: if false; // Only admin can read audit logs
+      allow write: if false; // Only server can write audit logs
+    }
+    
+    // Rate limiting and security
+    match /{document=**} {
+      // Global rate limiting - max 1000 operations per user per hour
+      allow read, write: if isAuthenticated() && 
+                            request.time > resource.data.lastAccess + duration.value(1, 's');
+    }
+  }
+}
+
+// Storage rules for farm photos and documents
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Farm photos
+    match /farms/{farmId}/photos/{photoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                      farmId.matches('farm_[a-zA-Z0-9]+') &&
+                      photoId.matches('[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp)') &&
+                      request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+    
+    // Flock photos
+    match /flocks/{flockId}/photos/{photoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                      flockId.matches('flock_[a-zA-Z0-9]+') &&
+                      photoId.matches('[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp)') &&
+                      request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+    
+    // Health record photos
+    match /health_records/{recordId}/photos/{photoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                      recordId.matches('record_[a-zA-Z0-9]+') &&
+                      photoId.matches('[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp)') &&
+                      request.resource.size < 10 * 1024 * 1024; // 10MB limit
+    }
+    
+    // User profile photos
+    match /users/{userId}/profile/{photoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                      request.auth.uid == userId &&
+                      photoId.matches('[a-zA-Z0-9_-]+\\.(jpg|jpeg|png|webp)') &&
+                      request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+    
+    // Documents and certificates
+    match /documents/{userId}/{documentType}/{documentId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && 
+                      request.auth.uid == userId &&
+                      documentType in ['kyc', 'certificates', 'licenses'] &&
+                      documentId.matches('[a-zA-Z0-9_-]+\\.(pdf|jpg|jpeg|png)') &&
+                      request.resource.size < 20 * 1024 * 1024; // 20MB limit
+    }
+    
+    // Backup files (admin only)
+    match /backups/{path=**} {
+      allow read, write: if false; // Only server/admin can access backups
+    }
+    
+    // Temporary uploads
+    match /temp/{userId}/{fileName} {
+      allow read, write: if request.auth != null && 
+                            request.auth.uid == userId &&
+                            request.resource.size < 50 * 1024 * 1024; // 50MB limit
+    }
+  }
+}

@@ -142,6 +142,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-perf-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-config-ktx")  // For feature flags
     implementation(libs.firebase.crashlytics)
     
     // Coroutines (latest versions)
@@ -194,13 +195,12 @@ dependencies {
     // Google Pay integration
     implementation("com.google.android.gms:play-services-wallet:19.2.1")
     
-    // Dependency Injection (Hilt) - TEMPORARILY DISABLED
-    // implementation("com.google.dagger:hilt-android:2.51.1")
-    // kapt("com.google.dagger:hilt-compiler:2.51.1")
-    // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    // kapt("androidx.hilt:hilt-compiler:1.2.0")
+    // Dependency Injection (Koin)
+    implementation("io.insert-koin:koin-android:3.5.6")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.6")
+    implementation("io.insert-koin:koin-androidx-workmanager:3.5.6")
     
-    // Add explicit JavaPoet dependency for compatibility
+    // Add explicit JavaPoet dependency for compatibility (if still needed)
     implementation("com.squareup:javapoet:1.13.0")
     
     // Paging for large datasets

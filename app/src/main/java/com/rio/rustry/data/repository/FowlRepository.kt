@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.rio.rustry.data.local.FowlDao
+import kotlinx.coroutines.flow.first
 import com.rio.rustry.data.local.entity.toDomainModel
 import com.rio.rustry.data.local.entity.toEntity
 import com.rio.rustry.data.model.Fowl
@@ -186,7 +187,7 @@ class FowlRepository @Inject constructor(
     
     // Sync operations
     suspend fun getFowlsNeedingSync(timestamp: Long): List<Fowl> {
-        return fowlDao.getFowlsNeedingSync(timestamp).map { it.toDomainModel() }
+        return fowlDao.getFowlsNeedingSync(timestamp).first().map { it.toDomainModel() }
     }
     
     suspend fun updateSyncTimestamp(id: String, timestamp: Long = System.currentTimeMillis()) {

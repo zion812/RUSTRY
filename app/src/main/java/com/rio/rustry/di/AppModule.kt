@@ -28,8 +28,8 @@ object AppModule {
     
     @Provides
     @Singleton
-    fun provideSecurityManager(@ApplicationContext context: Context): SecurityManager = 
-        SecurityManager(context)
+    fun provideSecurityManager(@ApplicationContext context: Context): com.rio.rustry.security.SecurityManager = 
+        com.rio.rustry.security.SecurityManager(context)
     
     @Provides
     @Singleton
@@ -48,7 +48,7 @@ object AppModule {
         Room.databaseBuilder(
             context,
             RustryDatabase::class.java,
-            RustryDatabase.DATABASE_NAME
+            "rustry_database"
         )
         .fallbackToDestructiveMigration() // For development - remove in production
         .build()

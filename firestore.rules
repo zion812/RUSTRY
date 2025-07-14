@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Deny all by default for security
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Allow users to access their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow read access to public fowl listings
+    match /fowls/{fowlId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        (request.auth.uid == resource.data.ownerId || 
+         request.auth.uid == request.resource.data.ownerId);
+    }
+    
+    // Allow marketplace listings
+    match /listings/{listingId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        (request.auth.uid == resource.data.farmerId || 
+         request.auth.uid == request.resource.data.farmerId);
+    }
+    
+    // Allow health records for fowl owners
+    match /health_records/{recordId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Allow transactions for involved parties
+    match /transactions/{transactionId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.buyerId || 
+         request.auth.uid == resource.data.sellerId);
+    }
+    
+    // Allow notifications for the recipient
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+    }
+    
+    // Allow transfer records for involved parties
+    match /transfers/{transferId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == resource.data.fromUserId || 
+         request.auth.uid == resource.data.toUserId);
+    }
+  }
+}

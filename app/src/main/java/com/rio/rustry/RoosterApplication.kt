@@ -13,22 +13,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+import android.util.Log
+import org.koin.dsl.module
 
-/**
- * Optimized Application class for the Rooster Platform
- * 
- * Features:
- * - Performance monitoring and optimization
- * - Memory management and leak prevention
- * - Security initialization
- * - Firebase integration
- * - Background task management
- * - Crash reporting and analytics
- */
-import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
-
-@HiltAndroidApp
 class RoosterApplication : Application(), ComponentCallbacks2 {
     
     companion object {
@@ -39,18 +28,26 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
             get() = INSTANCE ?: throw IllegalStateException("Application not initialized")
     }
     
-    // Hilt will inject these dependencies
-    @Inject lateinit var memoryManager: MemoryManager
-    @Inject lateinit var securityManager: SecurityManager
-    @Inject lateinit var networkManager: NetworkManager
-    @Inject lateinit var databaseOptimizer: DatabaseOptimizer
-    @Inject lateinit var optimizedImageLoader: OptimizedImageLoader
+    // Manually instantiate since migrating from Hilt
+    private val memoryManager: MemoryManager = MemoryManager(this)
+    private val securityManager: com.rio.rustry.security.SecurityManager = com.rio.rustry.security.SecurityManager(this)
+    private val networkManager: NetworkManager = NetworkManager(this)
+    private val databaseOptimizer: DatabaseOptimizer = DatabaseOptimizer()
+    private val optimizedImageLoader: OptimizedImageLoader = OptimizedImageLoader(this)
     
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
     override fun onCreate() {
         super.onCreate()
         INSTANCE = this
+        
+        // Initialize Koin
+        startKoin {
+            androidContext(this@RoosterApplication)
+            modules(module {
+                // Add module definitions here as needed
+            })
+        }
         
         // Initialize core components
         initializeFirebase()
@@ -64,12 +61,10 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
         // Start background optimizations
         startBackgroundOptimizations()
         
-        Logger.i("Application") { "Rooster Platform initialized successfully" }
+        Log.i("Application", "Rooster Platform initialized successfully")
     }
     
-    /**
-     * Initialize Firebase services
-     */
+    // Rest of the file remains the same
     private fun initializeFirebase() {
         try {
             FirebaseApp.initializeApp(this)
@@ -86,15 +81,12 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
                 isPerformanceCollectionEnabled = BuildConfig.ENABLE_ANALYTICS
             }
             
-            Logger.d("Application") { "Firebase initialized" }
+            Log.d("Application", "Firebase initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "Firebase initialization failed", e)
+            Log.e("Application", "Firebase initialization failed", e)
         }
     }
     
-    /**
-     * Initialize performance monitoring
-     */
     private fun initializePerformanceMonitoring() {
         try {
             PerformanceMonitor.startTrace("app_startup")
@@ -110,76 +102,61 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
                 }
             }
             
-            Logger.d("Application") { "Performance monitoring initialized" }
+            Log.d("Application", "Performance monitoring initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "Performance monitoring initialization failed", e)
+            Log.e("Application", "Performance monitoring initialization failed", e)
         }
     }
     
-    /**
-     * Initialize security components
-     */
     private fun initializeSecurity() {
         try {
-            // Security manager is initialized via Hilt
-            // Additional security setup can be done here
-            
-            Logger.d("Application") { "Security initialized" }
+            // Security manager initialized manually
+            Log.d("Application", "Security initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "Security initialization failed", e)
+            Log.e("Application", "Security initialization failed", e)
         }
     }
     
-    /**
-     * Initialize memory management
-     */
     private fun initializeMemoryManagement() {
         try {
-            // Dependencies are injected by Hilt - just register memory listener
             memoryManager.addMemoryListener(object : MemoryManager.MemoryListener {
                 override fun onMemoryEvent(event: MemoryManager.MemoryEvent) {
                     when (event) {
                         MemoryManager.MemoryEvent.CRITICAL -> {
-                            Logger.w("Memory", { "Critical memory event - performing emergency cleanup" })
+                            Log.w("Memory", "Critical memory event - performing emergency cleanup")
                             optimizedImageLoader.clearCache()
                             databaseOptimizer.clearAllCache()
                         }
                         MemoryManager.MemoryEvent.WARNING -> {
-                            Logger.i("Memory") { "Memory warning - performing light cleanup" }
+                            Log.i("Memory", "Memory warning - performing light cleanup")
                             databaseOptimizer.clearExpiredCache()
                         }
                         MemoryManager.MemoryEvent.LOW_MEMORY -> {
-                            Logger.w("Memory", { "System low memory - aggressive cleanup" })
+                            Log.w("Memory", "System low memory - aggressive cleanup")
                             performAggressiveCleanup()
                         }
                         MemoryManager.MemoryEvent.NORMAL -> {
-                            Logger.d("Memory") { "Memory state normalized" }
+                            Log.d("Memory", "Memory state normalized")
                         }
                     }
                 }
             })
             
-            Logger.d("Application") { "Memory management initialized" }
+            Log.d("Application", "Memory management initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "Memory management initialization failed", e)
+            Log.e("Application", "Memory management initialization failed", e)
         }
     }
     
-    /**
-     * Initialize networking components
-     */
     private fun initializeNetworking() {
         try {
             // Network monitoring is automatically started in NetworkManager
-            Logger.d("Application") { "Networking initialized" }
+            Log.d("Application", "Networking initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "Networking initialization failed", e)
+            Log.e("Application", "Networking initialization failed", e)
         }
     }
     
-    /**
-     * Initialize database optimizations
-     */
     private fun initializeDatabase() {
         try {
             // Start periodic cache cleanup
@@ -190,15 +167,12 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
                 }
             }
             
-            Logger.d("Application") { "Database optimization initialized" }
+            Log.d("Application", "Database optimization initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "Database initialization failed", e)
+            Log.e("Application", "Database initialization failed", e)
         }
     }
     
-    /**
-     * Initialize WorkManager
-     */
     private fun initializeWorkManager() {
         try {
             val workManagerConfig = WorkConfiguration.Builder()
@@ -207,15 +181,12 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
             
             WorkManager.initialize(this, workManagerConfig)
             
-            Logger.d("Application") { "WorkManager initialized" }
+            Log.d("Application", "WorkManager initialized")
         } catch (e: Exception) {
-            Logger.e("Application", "WorkManager initialization failed", e)
+            Log.e("Application", "WorkManager initialization failed", e)
         }
     }
     
-    /**
-     * Start background optimization tasks
-     */
     private fun startBackgroundOptimizations() {
         applicationScope.launch {
             // Periodic performance monitoring
@@ -225,29 +196,26 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
                 try {
                     // Log memory usage
                     memoryManager.generateMemoryReport().let { report ->
-                        Logger.d("PeriodicReport") { report }
+                        Log.d("PeriodicReport", report)
                     }
                     
                     // Log performance metrics
                     PerformanceMonitor.generatePerformanceReport().let { report ->
-                        Logger.d("PeriodicReport") { report }
+                        Log.d("PeriodicReport", report)
                     }
                     
                     // Log database performance
                     databaseOptimizer.generatePerformanceReport().let { report ->
-                        Logger.d("PeriodicReport") { report }
+                        Log.d("PeriodicReport", report)
                     }
                     
                 } catch (e: Exception) {
-                    Logger.e("Application", "Background optimization failed", e)
+                    Log.e("Application", "Background optimization failed", e)
                 }
             }
         }
     }
     
-    /**
-     * Perform aggressive cleanup during memory pressure
-     */
     private fun performAggressiveCleanup() {
         try {
             // Clear all caches
@@ -258,20 +226,20 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
             // Force garbage collection
             memoryManager.forceGarbageCollection()
             
-            Logger.i("Application") { "Aggressive cleanup completed" }
+            Log.i("Application", "Aggressive cleanup completed")
         } catch (e: Exception) {
-            Logger.e("Application", "Aggressive cleanup failed", e)
+            Log.e("Application", "Aggressive cleanup failed", e)
         }
     }
     
     override fun onConfigurationChanged(newConfig: AndroidConfiguration) {
         super.onConfigurationChanged(newConfig)
-        Logger.d("Application") { "Configuration changed: ${newConfig.toString()}" }
+        Log.d("Application", "Configuration changed: ${newConfig.toString()}")
     }
     
     override fun onLowMemory() {
         super.onLowMemory()
-        Logger.w("Application", { "System onLowMemory() called" })
+        Log.w("Application", "System onLowMemory() called")
         performAggressiveCleanup()
     }
     
@@ -289,7 +257,7 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
             else -> "UNKNOWN($level)"
         }
         
-        Logger.i("Application") { "Memory trim requested: $levelName" }
+        Log.i("Application", "Memory trim requested: $levelName")
         
         when (level) {
             ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN -> {
@@ -328,17 +296,14 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
                 PerformanceMonitor.sendPerformanceReport()
             }
             
-            Logger.i("Application") { "Application terminated" }
+            Log.i("Application", "Application terminated")
         } catch (e: Exception) {
-            Logger.e("Application", "Error during application termination", e)
+            Log.e("Application", "Error during application termination", e)
         }
         
         INSTANCE = null
     }
 }
 
-/**
- * Extension function to get application instance from context
- */
 val android.content.Context.roosterApplication: RoosterApplication
     get() = applicationContext as RoosterApplication

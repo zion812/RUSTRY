@@ -1,11 +1,10 @@
 package com.rio.rustry.data.model
 
-import java.util.Date
+import java.util.*
 
 /**
- * Health-related data models for the Rooster Platform
+ * Health record domain model for tracking fowl health events
  */
-
 data class HealthRecord(
     val id: String = "",
     val fowlId: String = "",
@@ -23,10 +22,13 @@ data class HealthRecord(
     val vetName: String = "",
     val vetLicense: String = "",
     val veterinarianContact: String = "",
+    val veterinarian: String = "",
+    val status: String = "Healthy", // Healthy, Sick, Recovering, Under Treatment
     val date: Date = Date(),
     val followUpRequired: Boolean = false,
     val followUpDate: Date? = null,
     val nextDueDate: Long? = null,
+    val nextAppointment: Date? = null,
     val attachments: List<String> = emptyList(), // URLs to images/documents
     val proofImageUrls: List<String> = emptyList(),
     val certificateUrls: List<String> = emptyList(),
@@ -37,6 +39,45 @@ data class HealthRecord(
     val createdBy: String = "",
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
+)
+
+/**
+ * Vaccination record specific model
+ */
+data class VaccinationRecord(
+    val id: String = "",
+    val fowlId: String = "",
+    val vaccineName: String = "",
+    val vaccineType: String = "",
+    val administeredDate: Date = Date(),
+    val nextDueDate: Date? = null,
+    val veterinarian: String = "",
+    val batchNumber: String = "",
+    val manufacturer: String = "",
+    val sideEffects: String = "",
+    val isCompleted: Boolean = true,
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()
+)
+
+/**
+ * Treatment record for medical treatments
+ */
+data class TreatmentRecord(
+    val id: String = "",
+    val fowlId: String = "",
+    val condition: String = "",
+    val treatment: String = "",
+    val startDate: Date = Date(),
+    val endDate: Date? = null,
+    val veterinarian: String = "",
+    val medication: List<String> = emptyList(),
+    val dosageInstructions: String = "",
+    val progress: String = "",
+    val isCompleted: Boolean = false,
+    val cost: Double = 0.0,
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()
 )
 
 data class HealthSummary(

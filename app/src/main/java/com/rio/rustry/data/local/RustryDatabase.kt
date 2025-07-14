@@ -4,56 +4,89 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
-import android.content.Context
-import com.rio.rustry.data.local.dao.FowlDao
-import com.rio.rustry.data.local.entity.FowlEntity
-import com.rio.rustry.data.local.entity.FavoriteEntity
-import com.rio.rustry.data.local.entity.PendingChangeEntity
-import com.rio.rustry.data.local.entity.Converters
+import com.rio.rustry.data.local.entity.*
 
+/**
+ * Main Room Database for RUSTRY
+ */
 @Database(
     entities = [
-        FowlEntity::class,
-        FavoriteEntity::class,
-        PendingChangeEntity::class
+        EnhancedFowlEntity::class,
+        FarmEntity::class,
+        FlockEntity::class,
+        HealthRecordEntity::class,
+        SaleEntity::class,
+        InventoryEntity::class,
+        ChangeLogEntity::class
     ],
     version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class RustryDatabase : RoomDatabase() {
-
+    
     abstract fun fowlDao(): FowlDao
-
+    abstract fun farmDao(): FarmDao
+    
     companion object {
-        private const val DATABASE_NAME = "rustry_database"
+        const val DATABASE_NAME = "rustry_database"
+    }
+}
 
-        @Volatile
-        private var INSTANCE: RustryDatabase? = null
-
-        fun getDatabase(context: Context): RustryDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    RustryDatabase::class.java,
-                    DATABASE_NAME
-                )
-                    .addMigrations(MIGRATION_1_2)
-                    .fallbackToDestructiveMigration() // For development only
-                    .build()
-                INSTANCE = instance
-                instance
-            }
-        }
-
-        // Migration from version 1 to 2 (example for future use)
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Example migration - add new column
-                // database.execSQL("ALTER TABLE fowls ADD COLUMN newColumn TEXT")
+/**
+ * Type converters for complex data types
+ */
+class Converters {
+    
+    @androidx.room.TypeConverter
+    fun fromStringList(value: List<String>): String {
+        return value.joinToString(",")
+    }
+    
+    @androidx.room.TypeConverter
+    fun toStringList(value: String): List<String> {
+        return if (value.isEmpty()) emptyList() else value.split(",")
+    }
+    
+    @androidx.room.TypeConverter
+    fun fromMap(value: Map<String, String>): String {
+        return value.entries.joinToString(";") { "${it.key}:${it.value}" }
+    }
+    
+    @androidx.room.TypeConverter
+    fun toMap(value: String): Map<String, String> {
+        return if (value.isEmpty()) {
+            emptyMap()
+        } else {
+            value.split(";").associate {
+                val parts = it.split(":")
+                parts[0] to (parts.getOrNull(1) ?: "")
             }
         }
     }
+}
+
+/**
+ * Farm DAO interface
+ */
+@androidx.room.Dao
+interface FarmDao {
+    
+    @androidx.room.Query("SELECT * FROM farms WHERE is_deleted = 0 ORDER BY updated_at DESC")
+    fun getAllFarms(): kotlinx.coroutines.flow.Flow<List<FarmEntity>>
+    
+    @androidx.room.Query("SELECT * FROM farms WHERE owner_id = :ownerId AND is_deleted = 0")
+    fun getFarmsByOwner(ownerId: String): kotlinx.coroutines.flow.Flow<List<FarmEntity>>
+    
+    @androidx.room.Query("SELECT * FROM farms WHERE id = :farmId AND is_deleted = 0")
+    suspend fun getFarmById(farmId: String): FarmEntity?
+    
+    @androidx.room.Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun insertFarm(farm: FarmEntity)
+    
+    @androidx.room.Update
+    suspend fun updateFarm(farm: FarmEntity)
+    
+    @androidx.room.Delete
+    suspend fun deleteFarm(farm: FarmEntity)
 }
