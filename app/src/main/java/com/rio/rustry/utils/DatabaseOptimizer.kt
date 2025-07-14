@@ -5,6 +5,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
 /**
  * Advanced database optimization utility for the Rooster Platform
  * 
@@ -16,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap
  * - Transaction optimization
  * - Memory usage monitoring
  */
-class DatabaseOptimizer() {
+@Singleton
+class DatabaseOptimizer @Inject constructor() {
     
     private val queryMetrics = ConcurrentHashMap<String, QueryMetric>()
     private val activeTransactions = ConcurrentHashMap<String, Long>()

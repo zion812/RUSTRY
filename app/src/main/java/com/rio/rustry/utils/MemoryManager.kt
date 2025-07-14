@@ -25,8 +25,11 @@ import java.util.concurrent.ConcurrentHashMap
  * - Lifecycle-aware memory cleanup
  * - Memory pressure handling
  */
-class MemoryManager(
-    private val context: Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+
+class MemoryManager @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : DefaultLifecycleObserver {
     
     companion object {

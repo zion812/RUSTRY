@@ -1,155 +1,212 @@
 package com.rio.rustry.data.repository
 
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.storage.FirebaseStorage
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import com.rio.rustry.data.local.FowlDao
+import com.rio.rustry.data.local.entity.toDomainModel
+import com.rio.rustry.data.local.entity.toEntity
 import com.rio.rustry.data.model.Fowl
-import kotlinx.coroutines.tasks.await
-import android.net.Uri
-import com.rio.rustry.di.FirebaseModule
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FowlRepository(
-    private val firestore: FirebaseFirestore = FirebaseModule.provideFirebaseFirestore(),
-    private val storage: FirebaseStorage = FirebaseModule.provideFirebaseStorage()
+/**
+ * Repository for Fowl data operations
+ * 
+ * Features:
+ * - Offline-first architecture
+ * - Automatic caching
+ * - Pagination support
+ * - Real-time updates via Flow
+ * - Sync management
+ */
+@Singleton
+class FowlRepository @Inject constructor(
+    private val fowlDao: FowlDao
 ) {
     
-    suspend fun addFowl(fowl: Fowl): Result<String> {
-        return try {
-            val docRef = firestore.collection("fowls").add(fowl).await()
-            Result.success(docRef.id)
-        } catch (e: Exception) {
-            Result.failure(e)
+    companion object {
+        private const val PAGE_SIZE = 20
+        private const val PREFETCH_DISTANCE = 5
+    }
+    
+    // Basic CRUD operations
+    suspend fun getFowlById(id: String): Fowl? {
+        return fowlDao.getFowlById(id)?.toDomainModel()
+    }
+    
+    fun getFowlByIdFlow(id: String): Flow<Fowl?> {
+        return fowlDao.getFowlByIdFlow(id).map { it?.toDomainModel() }
+    }
+    
+    suspend fun insertFowl(fowl: Fowl) {
+        fowlDao.insertFowl(fowl.toEntity())
+    }
+    
+    suspend fun insertFowls(fowls: List<Fowl>) {
+        fowlDao.insertFowls(fowls.map { it.toEntity() })
+    }
+    
+    suspend fun updateFowl(fowl: Fowl) {
+        fowlDao.updateFowl(fowl.toEntity())
+    }
+    
+    suspend fun deleteFowl(fowl: Fowl) {
+        fowlDao.deleteFowl(fowl.toEntity())
+    }
+    
+    suspend fun deleteFowlById(id: String) {
+        fowlDao.deleteFowlById(id)
+    }
+    
+    // Marketplace operations with pagination
+    fun getAvailableFowls(): Flow<PagingData<Fowl>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { fowlDao.getAvailableFowls() }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomainModel() }
         }
     }
     
-    suspend fun getFowlsByOwner(ownerId: String): Result<List<Fowl>> {
-        return try {
-            // Simple query without composite index
-            val snapshot = firestore.collection("fowls")
-                .whereEqualTo("ownerId", ownerId)
-                .get()
-                .await()
-            
-            val fowls = snapshot.documents.mapNotNull { doc ->
-                doc.toObject(Fowl::class.java)?.copy(id = doc.id)
-            }.sortedByDescending { it.createdAt } // Sort in memory
-            
-            Result.success(fowls)
-        } catch (e: Exception) {
-            Result.failure(e)
+    fun getAvailableFowlsFlow(): Flow<List<Fowl>> {
+        return fowlDao.getAvailableFowlsFlow().map { entities ->
+            entities.map { it.toDomainModel() }
         }
     }
     
-    suspend fun getAllFowls(): Result<List<Fowl>> {
-        return try {
-            // Simplified query without composite index requirement
-            val snapshot = firestore.collection("fowls")
-                .whereEqualTo("isAvailable", true)
-                .get()
-                .await()
-            
-            val fowls = snapshot.documents.mapNotNull { doc ->
-                doc.toObject(Fowl::class.java)?.copy(id = doc.id)
-            }.sortedByDescending { it.createdAt } // Sort in memory instead
-            
-            Result.success(fowls)
-        } catch (e: Exception) {
-            Result.failure(e)
+    fun getFowlsByOwner(ownerId: String): Flow<List<Fowl>> {
+        return fowlDao.getFowlsByOwner(ownerId).map { entities ->
+            entities.map { it.toDomainModel() }
         }
     }
     
-    suspend fun getFowlsByFilter(
-        breed: String? = null,
-        location: String? = null,
-        isTraceable: Boolean? = null
-    ): Result<List<Fowl>> {
-        return try {
-            // Start with basic query
-            val snapshot = firestore.collection("fowls")
-                .whereEqualTo("isAvailable", true)
-                .get()
-                .await()
-            
-            // Filter in memory to avoid composite index requirements
-            var fowls = snapshot.documents.mapNotNull { doc ->
-                doc.toObject(Fowl::class.java)?.copy(id = doc.id)
-            }
-            
-            // Apply filters in memory
-            breed?.let { filterBreed ->
-                fowls = fowls.filter { it.breed == filterBreed }
-            }
-            
-            location?.let { filterLocation ->
-                fowls = fowls.filter { it.location.contains(filterLocation, ignoreCase = true) }
-            }
-            
-            isTraceable?.let { filterTraceable ->
-                fowls = fowls.filter { it.isTraceable == filterTraceable }
-            }
-            
-            // Sort by creation date
-            fowls = fowls.sortedByDescending { it.createdAt }
-            
-            Result.success(fowls)
-        } catch (e: Exception) {
-            Result.failure(e)
+    fun getFowlsByOwnerPaging(ownerId: String): Flow<PagingData<Fowl>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { fowlDao.getFowlsByOwnerPaging(ownerId) }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomainModel() }
         }
     }
     
-    suspend fun getFowlById(fowlId: String): Result<Fowl> {
-        return try {
-            val document = firestore.collection("fowls")
-                .document(fowlId)
-                .get()
-                .await()
-            
-            val fowl = document.toObject(Fowl::class.java)?.copy(id = document.id)
-            if (fowl != null) {
-                Result.success(fowl)
-            } else {
-                Result.failure(Exception("Fowl not found"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+    // Search and filter operations
+    fun searchFowls(query: String): Flow<PagingData<Fowl>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { fowlDao.searchFowls(query) }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomainModel() }
         }
     }
     
-    suspend fun updateFowl(fowl: Fowl): Result<Unit> {
-        return try {
-            firestore.collection("fowls")
-                .document(fowl.id)
-                .set(fowl)
-                .await()
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+    fun getFowlsByBreed(breed: String): Flow<PagingData<Fowl>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { fowlDao.getFowlsByBreed(breed) }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomainModel() }
         }
     }
     
-    suspend fun uploadImage(uri: Uri, path: String): Result<String> {
-        return try {
-            val ref = storage.reference.child("images/$path")
-            ref.putFile(uri).await()
-            val downloadUrl = ref.downloadUrl.await()
-            Result.success(downloadUrl.toString())
-        } catch (e: Exception) {
-            Result.failure(e)
+    fun getFowlsByLocation(location: String): Flow<PagingData<Fowl>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { fowlDao.getFowlsByLocation(location) }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomainModel() }
         }
     }
     
-    suspend fun getNonTraceableCount(ownerId: String): Result<Int> {
-        return try {
-            // Simple query without ordering to avoid composite index
-            val snapshot = firestore.collection("fowls")
-                .whereEqualTo("ownerId", ownerId)
-                .whereEqualTo("isTraceable", false)
-                .get()
-                .await()
-            
-            Result.success(snapshot.size())
-        } catch (e: Exception) {
-            Result.failure(e)
+    fun getFowlsByPriceRange(minPrice: Double, maxPrice: Double): Flow<PagingData<Fowl>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { fowlDao.getFowlsByPriceRange(minPrice, maxPrice) }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toDomainModel() }
         }
+    }
+    
+    // Analytics and reporting
+    suspend fun getFowlCountByOwner(ownerId: String): Int {
+        return fowlDao.getFowlCountByOwner(ownerId)
+    }
+    
+    suspend fun getAvailableFowlCount(): Int {
+        return fowlDao.getAvailableFowlCount()
+    }
+    
+    suspend fun getAveragePriceByBreed(breed: String): Double? {
+        return fowlDao.getAveragePriceByBreed(breed)
+    }
+    
+    suspend fun getAvailableBreeds(): List<String> {
+        return fowlDao.getAvailableBreeds()
+    }
+    
+    suspend fun getAvailableLocations(): List<String> {
+        return fowlDao.getAvailableLocations()
+    }
+    
+    // Traceability operations
+    suspend fun getFowlsByParent(parentId: String): List<Fowl> {
+        return fowlDao.getFowlsByParent(parentId).map { it.toDomainModel() }
+    }
+    
+    suspend fun getFowlParents(parentIds: List<String>): List<Fowl> {
+        return fowlDao.getFowlParents(parentIds).map { it.toDomainModel() }
+    }
+    
+    // Sync operations
+    suspend fun getFowlsNeedingSync(timestamp: Long): List<Fowl> {
+        return fowlDao.getFowlsNeedingSync(timestamp).map { it.toDomainModel() }
+    }
+    
+    suspend fun updateSyncTimestamp(id: String, timestamp: Long = System.currentTimeMillis()) {
+        fowlDao.updateSyncTimestamp(id, timestamp)
+    }
+    
+    suspend fun cleanupOldCachedFowls(cutoffTime: Long, currentUserId: String) {
+        fowlDao.cleanupOldCachedFowls(cutoffTime, currentUserId)
+    }
+    
+    // Batch operations
+    suspend fun replaceFowls(fowls: List<Fowl>) {
+        fowlDao.replaceFowls(fowls.map { it.toEntity() })
+    }
+    
+    suspend fun clearAllFowls() {
+        fowlDao.clearAllFowls()
+    }
+    
+    suspend fun clearFowlsByOwner(ownerId: String) {
+        fowlDao.clearFowlsByOwner(ownerId)
     }
 }

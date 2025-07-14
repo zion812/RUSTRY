@@ -126,7 +126,8 @@
 # ROOSTER PLATFORM SPECIFIC RULES
 # ================================================================================================
 
-# Keep all data models
+# Keep all data models - CRITICAL FOR RELEASE
+-keep class com.rio.rustry.data.models.** { *; }
 -keep class com.rio.rustry.data.model.** { *; }
 
 # Keep repository interfaces and implementations

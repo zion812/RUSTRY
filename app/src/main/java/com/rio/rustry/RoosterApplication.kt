@@ -25,6 +25,10 @@ import kotlinx.coroutines.launch
  * - Background task management
  * - Crash reporting and analytics
  */
+import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
+
+@HiltAndroidApp
 class RoosterApplication : Application(), ComponentCallbacks2 {
     
     companion object {
@@ -35,12 +39,12 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
             get() = INSTANCE ?: throw IllegalStateException("Application not initialized")
     }
     
-    // Manual dependency injection - simplified for now
-    lateinit var memoryManager: MemoryManager
-    lateinit var securityManager: SecurityManager
-    lateinit var networkManager: NetworkManager
-    lateinit var databaseOptimizer: DatabaseOptimizer
-    lateinit var optimizedImageLoader: OptimizedImageLoader
+    // Hilt will inject these dependencies
+    @Inject lateinit var memoryManager: MemoryManager
+    @Inject lateinit var securityManager: SecurityManager
+    @Inject lateinit var networkManager: NetworkManager
+    @Inject lateinit var databaseOptimizer: DatabaseOptimizer
+    @Inject lateinit var optimizedImageLoader: OptimizedImageLoader
     
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
@@ -131,13 +135,7 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
      */
     private fun initializeMemoryManagement() {
         try {
-            // Initialize dependencies manually
-            memoryManager = MemoryManager(this)
-            securityManager = SecurityManager(this)
-            networkManager = NetworkManager(this)
-            databaseOptimizer = DatabaseOptimizer()
-            optimizedImageLoader = OptimizedImageLoader(this)
-            // Register memory listener for critical events
+            // Dependencies are injected by Hilt - just register memory listener
             memoryManager.addMemoryListener(object : MemoryManager.MemoryListener {
                 override fun onMemoryEvent(event: MemoryManager.MemoryEvent) {
                     when (event) {

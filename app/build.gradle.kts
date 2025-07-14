@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
-    // Temporarily disable Hilt to fix KAPT issues
+    // Temporarily disable Hilt for release build
     // alias(libs.plugins.hilt.android)
     // kotlin("kapt")
 }
@@ -17,8 +17,8 @@ android {
         applicationId = "com.rio.rustry"
         minSdk = 23
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.0-rc1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -36,13 +36,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false  // Temporarily disabled for testing
+            isShrinkResources = false
             isDebuggable = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // proguardFiles(
+            //     getDefaultProguardFile("proguard-android-optimize.txt"),
+            //     "proguard-rules.pro"
+            // )
             
             // Performance optimizations for release
             buildConfigField("boolean", "ENABLE_LOGGING", "false")
@@ -78,10 +78,7 @@ android {
     kotlinOptions {
         jvmTarget = "17"
         freeCompilerArgs += listOf(
-            "-opt-in=kotlin.RequiresOptIn",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-            "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+            "-opt-in=kotlin.RequiresOptIn"
         )
     }
     
@@ -91,7 +88,7 @@ android {
     }
     
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
+        kotlinCompilerExtensionVersion = "1.5.8"  // Compatible with Kotlin 1.9.22
     }
     
     packaging {
@@ -115,6 +112,10 @@ android {
         }
     }
 }
+
+// kapt {
+//     correctErrorTypes = true
+// }
 
 dependencies {
     // Core Android dependencies
@@ -140,6 +141,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-perf-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
     implementation(libs.firebase.crashlytics)
     
     // Coroutines (latest versions)
@@ -171,21 +173,28 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
     
+    // Camera and Image Processing
+    implementation("androidx.camera:camera-core:1.3.1")
+    implementation("androidx.camera:camera-camera2:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+    implementation("androidx.camera:camera-view:1.3.1")
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
+    
     // Room for offline persistence (optimized)
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.room:room-paging:2.6.1")
-    // Temporarily disable KAPT
+    // Room annotation processor (required for Room to generate code) - TEMPORARILY DISABLED
     // kapt("androidx.room:room-compiler:2.6.1")
     
     // WorkManager for sync
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-    // implementation("androidx.hilt:hilt-work:1.1.0")
+    implementation("androidx.hilt:hilt-work:1.1.0")
     
     // Google Pay integration
     implementation("com.google.android.gms:play-services-wallet:19.2.1")
     
-    // Dependency Injection (Hilt) - Temporarily disabled
+    // Dependency Injection (Hilt) - TEMPORARILY DISABLED
     // implementation("com.google.dagger:hilt-android:2.51.1")
     // kapt("com.google.dagger:hilt-compiler:2.51.1")
     // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -241,4 +250,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
+    
+    // Additional UI components
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
 }

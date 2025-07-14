@@ -32,8 +32,11 @@ import javax.crypto.spec.SecretKeySpec
  * - Certificate pinning
  * - Data integrity verification
  */
-class SecurityManager(
-    private val context: Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+
+class SecurityManager @Inject constructor(
+    @ApplicationContext private val context: Context
 ) {
     
     companion object {

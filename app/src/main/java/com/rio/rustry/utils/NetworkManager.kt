@@ -26,8 +26,11 @@ import java.util.concurrent.TimeUnit
  * - Error handling and recovery
  * - Offline support
  */
-class NetworkManager(
-    private val context: Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+
+class NetworkManager @Inject constructor(
+    @ApplicationContext private val context: Context
 ) {
     
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
