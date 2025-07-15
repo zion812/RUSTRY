@@ -1,0 +1,277 @@
+# generated/phase3/fastlane/Fastfile
+
+default_platform(:android)
+
+platform :android do
+  desc "Increment version code and build release AAB"
+  lane :build_release do
+    # Increment version code
+    increment_version_code(
+      gradle_file_path: "app/build.gradle"
+    )
+    
+    # Clean project
+    gradle(task: "clean")
+    
+    # Build release AAB
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => ENV["KEYSTORE_PATH"],
+        "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["KEY_ALIAS"],
+        "android.injected.signing.key.password" => ENV["KEY_PASSWORD"]
+      }
+    )
+  end
+
+  desc "Run unit tests"
+  lane :test_unit do
+    gradle(task: "testReleaseUnitTest")
+  end
+
+  desc "Run instrumented tests"
+  lane :test_instrumented do
+    gradle(task: "connectedAndroidTest")
+  end
+
+  desc "Upload to Firebase App Distribution for testing"
+  lane :distribute_beta do
+    build_release
+    
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID"],
+      service_credentials_file: "firebase-service-account.json",
+      release_notes: "Phase 3 Beta Release - New features: Breeding Analytics, Verified Transfers, Family Tree, Promotions",
+      groups: "beta-testers",
+      android_artifact_type: "AAB"
+    )
+    
+    # Send Slack notification
+    slack(
+      message: "🚀 Phase 3 Beta build distributed to Firebase App Distribution",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot",
+      icon_url: "https://fastlane.tools/assets/img/fastlane_icon.png"
+    )
+  end
+
+  desc "Upload to Google Play Internal Track"
+  lane :deploy_internal do
+    build_release
+    
+    upload_to_play_store(
+      track: "internal",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "📱 Phase 3 uploaded to Google Play Internal Track",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Promote from Internal to Alpha Track"
+  lane :promote_to_alpha do
+    upload_to_play_store(
+      track: "internal",
+      track_promote_to: "alpha",
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "🔄 Phase 3 promoted to Google Play Alpha Track",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Promote from Alpha to Beta Track"
+  lane :promote_to_beta do
+    upload_to_play_store(
+      track: "alpha",
+      track_promote_to: "beta",
+      rollout: "0.1", # Start with 10% rollout
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "🎯 Phase 3 promoted to Google Play Beta Track (10% rollout)",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Increase Beta rollout percentage"
+  lane :increase_beta_rollout do |options|
+    rollout_percentage = options[:percentage] || "0.5"
+    
+    upload_to_play_store(
+      track: "beta",
+      rollout: rollout_percentage,
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "📈 Phase 3 Beta rollout increased to #{(rollout_percentage.to_f * 100).to_i}%",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Promote to Production"
+  lane :promote_to_production do
+    upload_to_play_store(
+      track: "beta",
+      track_promote_to: "production",
+      rollout: "0.1", # Start with 10% production rollout
+      skip_upload_aab: true,
+      skip_upload_metadata: false, # Update metadata for production
+      skip_upload_changelogs: false, # Include changelogs
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "🎉 Phase 3 promoted to Google Play Production (10% rollout)",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Complete production rollout"
+  lane :complete_rollout do
+    upload_to_play_store(
+      track: "production",
+      rollout: "1.0", # 100% rollout
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "🚀 Phase 3 production rollout completed (100%)",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Emergency rollback"
+  lane :emergency_rollback do
+    # This would typically involve promoting a previous version
+    # or halting the current rollout
+    upload_to_play_store(
+      track: "production",
+      rollout: "0.0", # Halt rollout
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+    
+    slack(
+      message: "🚨 EMERGENCY: Phase 3 rollout halted",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot"
+    )
+  end
+
+  desc "Full CI/CD pipeline for Phase 3"
+  lane :phase3_pipeline do
+    # Run tests
+    test_unit
+    
+    # Build and distribute beta
+    distribute_beta
+    
+    # Deploy to internal track
+    deploy_internal
+    
+    # Send completion notification
+    slack(
+      message: "✅ Phase 3 CI/CD pipeline completed successfully",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot",
+      payload: {
+        "Build Number" => get_version_code(gradle_file_path: "app/build.gradle"),
+        "Version Name" => get_version_name(gradle_file_path: "app/build.gradle"),
+        "Git Commit" => last_git_commit[:commit_hash],
+        "Branch" => git_branch
+      }
+    )
+  end
+
+  desc "Generate and upload metadata"
+  lane :update_metadata do
+    upload_to_play_store(
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
+  desc "Capture and upload screenshots"
+  lane :screenshots do
+    capture_android_screenshots
+    upload_to_play_store(
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: false
+    )
+  end
+
+  # Error handling
+  error do |lane, exception|
+    slack(
+      message: "❌ Fastlane failed in lane: #{lane}",
+      channel: "#mobile-releases",
+      username: "Fastlane Bot",
+      payload: {
+        "Error" => exception.message,
+        "Lane" => lane,
+        "Git Commit" => last_git_commit[:commit_hash]
+      }
+    )
+  end
+end
+
+# Helper methods
+def get_version_code(gradle_file_path:)
+  file = File.read(gradle_file_path)
+  version_code = file.match(/versionCode (\d+)/)[1]
+  version_code.to_i
+end
+
+def get_version_name(gradle_file_path:)
+  file = File.read(gradle_file_path)
+  version_name = file.match(/versionName "(.+)"/)[1]
+  version_name
+end

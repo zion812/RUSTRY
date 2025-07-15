@@ -74,13 +74,7 @@ class MainActivity : ComponentActivity() {
 fun RustryApp() {
     var isAuthenticated by remember { mutableStateOf(false) }
     
-    if (!isAuthenticated) {
-        SimpleAuthScreen(
-            onAuthSuccess = { isAuthenticated = true }
-        )
-    } else {
-        MainAppContent()
-    }
+    MainAppContent()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

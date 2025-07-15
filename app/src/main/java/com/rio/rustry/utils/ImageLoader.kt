@@ -46,11 +46,12 @@ import kotlinx.coroutines.Dispatchers
  * - Automatic image resizing
  * - Support for various formats (JPEG, PNG, GIF, SVG)
  */
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
+// Removed Hilt imports since it's disabled
+// import dagger.hilt.android.qualifiers.ApplicationContext
+// import javax.inject.Inject
 
-class OptimizedImageLoader @Inject constructor(
-    @ApplicationContext private val context: Context
+class OptimizedImageLoader(
+    private val context: Context
 ) {
     
     private val imageLoader by lazy {

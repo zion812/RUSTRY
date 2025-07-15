@@ -1,0 +1,90 @@
+// generated/phase3/app/src/main/java/com/rio/rustry/promotions/PromotionsViewModel.kt
+
+package com.rio.rustry.promotions
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rio.rustry.data.model.Fowl
+import com.rio.rustry.domain.repository.CouponRepository
+import com.rio.rustry.domain.repository.FowlRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class PromotionsViewModel @Inject constructor(
+    private val couponRepository: CouponRepository,
+    private val fowlRepository: FowlRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<PromotionsUiState>(PromotionsUiState.Loading)
+    val uiState: StateFlow<PromotionsUiState> = _uiState.asStateFlow()
+
+    fun loadAvailableCoupons() {
+        viewModelScope.launch {
+            _uiState.value = PromotionsUiState.Loading
+            try {
+                val coupons = couponRepository.getAvailableCoupons()
+                _uiState.value = PromotionsUiState.CouponsLoaded(coupons)
+            } catch (e: Exception) {
+                _uiState.value = PromotionsUiState.Error(e.message ?: "Failed to load coupons")
+            }
+        }
+    }
+
+    fun loadUserListings() {
+        viewModelScope.launch {
+            _uiState.value = PromotionsUiState.Loading
+            try {
+                val listings = fowlRepository.getUserFowls()
+                _uiState.value = PromotionsUiState.ListingsLoaded(listings)
+            } catch (e: Exception) {
+                _uiState.value = PromotionsUiState.Error(e.message ?: "Failed to load listings")
+            }
+        }
+    }
+
+    fun applyCoupon(couponCode: String) {
+        viewModelScope.launch {
+            try {
+                val success = couponRepository.applyCoupon(couponCode)
+                if (success) {
+                    _uiState.value = PromotionsUiState.CouponApplied(couponCode)
+                } else {
+                    _uiState.value = PromotionsUiState.Error("Failed to apply coupon")
+                }
+            } catch (e: Exception) {
+                _uiState.value = PromotionsUiState.Error(e.message ?: "Failed to apply coupon")
+            }
+        }
+    }
+
+    fun boostListing(fowlId: String, duration: BoostDuration) {
+        viewModelScope.launch {
+            try {
+                val success = fowlRepository.boostListing(fowlId, duration)
+                if (success) {
+                    _uiState.value = PromotionsUiState.ListingBoosted(fowlId)
+                    // Reload listings to show updated boost status
+                    loadUserListings()
+                } else {
+                    _uiState.value = PromotionsUiState.Error("Failed to boost listing")
+                }
+            } catch (e: Exception) {
+                _uiState.value = PromotionsUiState.Error(e.message ?: "Failed to boost listing")
+            }
+        }
+    }
+}
+
+sealed class PromotionsUiState {
+    object Loading : PromotionsUiState()
+    data class CouponsLoaded(val coupons: List<Coupon>) : PromotionsUiState()
+    data class ListingsLoaded(val listings: List<Fowl>) : PromotionsUiState()
+    data class CouponApplied(val couponCode: String) : PromotionsUiState()
+    data class ListingBoosted(val fowlId: String) : PromotionsUiState()
+    data class Error(val message: String) : PromotionsUiState()
+}

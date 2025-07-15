@@ -1,0 +1,16 @@
+# generated/phase3/fastlane/Appfile
+
+# Google Play Console configuration
+json_key_file("google-play-service-account.json") # Path to the json secret file
+package_name("com.rio.rustry") # e.g. com.krausefx.app
+
+# Firebase App Distribution configuration
+firebase_app_id(ENV["FIREBASE_APP_ID"]) # Firebase App ID for distribution
+
+# Optional: Apple App Store Connect configuration (if iOS version exists)
+# apple_id("your-apple-id@example.com")
+# app_identifier("com.rio.rustry.ios")
+# team_id("TEAM_ID")
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

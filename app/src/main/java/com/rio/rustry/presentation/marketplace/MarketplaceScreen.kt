@@ -553,3 +553,15 @@ private fun calculateAge(dateOfBirth: java.util.Date): String {
         else -> "${ageInDays / 365} years"
     }
 }
+
+@Composable
+fun EmptyState() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("No fowls found")
+        Text("Try adjusting your search or filters")
+    }
+}

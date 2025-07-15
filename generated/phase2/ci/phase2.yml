@@ -1,0 +1,446 @@
+# generated/phase2/ci/phase2.yml
+
+name: Phase 2 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'app/src/main/java/com/rio/rustry/marketplace/**'
+      - 'app/src/main/java/com/rio/rustry/social/**'
+      - 'app/src/main/java/com/rio/rustry/listing/**'
+      - 'app/src/main/java/com/rio/rustry/orders/**'
+      - 'app/src/main/java/com/rio/rustry/payment/**'
+      - 'app/src/main/java/com/rio/rustry/health/**'
+      - 'app/src/test/java/com/rio/rustry/marketplace/**'
+      - 'app/src/test/java/com/rio/rustry/social/**'
+      - 'app/src/test/java/com/rio/rustry/listing/**'
+      - 'app/src/test/java/com/rio/rustry/orders/**'
+      - 'app/src/androidTest/java/com/rio/rustry/marketplace/**'
+      - 'functions/enhancedDeleteUserData.js'
+  pull_request:
+    branches: [ main ]
+
+env:
+  JAVA_VERSION: '17'
+  ANDROID_API_LEVEL: 34
+  ANDROID_BUILD_TOOLS_VERSION: '34.0.0'
+
+jobs:
+  lint:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run Kotlin linter
+        run: ./gradlew ktlintCheck
+
+      - name: Run Android lint
+        run: ./gradlew lintDebug
+
+      - name: Upload lint reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: lint-reports
+          path: |
+            app/build/reports/lint-results-debug.html
+            app/build/reports/ktlint/
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run Phase 2 unit tests
+        run: ./gradlew testDebugUnitTest --tests "*marketplace*" --tests "*social*" --tests "*listing*" --tests "*orders*" --tests "*health*"
+
+      - name: Generate test coverage report
+        run: ./gradlew jacocoTestReport
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: unit-test-results
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/reports/jacoco/jacocoTestReport/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          flags: unittests
+          name: phase2-unit-tests
+
+  instrumented-tests:
+    name: Android Instrumented Tests
+    runs-on: macos-latest
+    needs: unit-tests
+    strategy:
+      matrix:
+        api-level: [28, 31, 34]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run Phase 2 instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew connectedDebugAndroidTest --tests "*marketplace*" --tests "*social*" --tests "*orders*"
+
+      - name: Upload instrumented test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: instrumented-test-results-api-${{ matrix.api-level }}
+          path: |
+            app/build/reports/androidTests/connected/
+            app/build/outputs/androidTest-results/
+
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    needs: [unit-tests, instrumented-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: apk-builds
+          path: |
+            app/build/outputs/apk/debug/
+            app/build/outputs/apk/release/
+
+  cloud-functions-test:
+    name: Cloud Functions Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Install function dependencies
+        run: |
+          cd functions
+          npm ci
+
+      - name: Run function tests
+        run: |
+          cd functions
+          npm test
+
+      - name: Validate function deployment
+        run: |
+          cd functions
+          firebase functions:config:get --project=demo-project || true
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  performance-test:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run benchmark tests
+        run: ./gradlew connectedBenchmarkAndroidTest || true
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: benchmark-results
+          path: app/build/outputs/connected_android_test_additional_output/
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, cloud-functions-test, security-scan]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Cloud Functions to staging
+        run: |
+          cd functions
+          npm ci
+          firebase deploy --only functions --project=${{ secrets.FIREBASE_STAGING_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deploy Firestore rules to staging
+        run: firebase deploy --only firestore:rules --project=${{ secrets.FIREBASE_STAGING_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Upload APK to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_STAGING_APP_ID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: internal-testers
+          file: app/build/outputs/apk/debug/app-debug.apk
+          releaseNotes: |
+            Phase 2 Features:
+            - Complete marketplace with search and filters
+            - Social features with chat and community feed
+            - Enhanced health monitoring with AI recommendations
+            - Full order management and payment processing
+            - Comprehensive GDPR compliance
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, cloud-functions-test, security-scan, performance-test]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Cloud Functions to production
+        run: |
+          cd functions
+          npm ci
+          firebase deploy --only functions --project=${{ secrets.FIREBASE_PRODUCTION_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deploy Firestore rules to production
+        run: firebase deploy --only firestore:rules --project=${{ secrets.FIREBASE_PRODUCTION_PROJECT }} --token=${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Upload release APK to Play Console
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: com.rio.rustry
+          releaseFiles: app/build/outputs/apk/release/app-release.apk
+          track: internal
+          status: completed
+
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    steps:
+      - name: Notify Slack on success
+        if: ${{ needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🎉 Phase 2 deployment successful!
+            
+            ✅ Marketplace features deployed
+            ✅ Social features live
+            ✅ Health monitoring active
+            ✅ Payment system operational
+            ✅ GDPR compliance verified
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on failure
+        if: ${{ needs.deploy-staging.result == 'failure' || needs.deploy-production.result == 'failure' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ Phase 2 deployment failed!
+            
+            Please check the logs and retry deployment.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

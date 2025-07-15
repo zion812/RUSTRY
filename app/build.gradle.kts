@@ -17,8 +17,8 @@ android {
         applicationId = "com.rio.rustry"
         minSdk = 23
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.0-rc1"
+        versionCode = 3
+        versionName = "1.0.0-phase3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -224,6 +224,29 @@ dependencies {
     // QR Code generation
     implementation("com.google.zxing:core:3.5.3")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    
+    // Phase 3 Dependencies
+    // MPAndroidChart for analytics charts
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    
+    // NFC support
+    implementation("androidx.core:core-ktx:1.12.0")
+    
+    // Enhanced graphics for family tree
+    implementation("androidx.graphics:graphics-core:1.0.0-beta01")
+    
+    // PDF generation for exports
+    implementation("com.itextpdf:itext7-core:7.2.5")
+    
+    // Enhanced WorkManager for vaccination reminders
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
+    // SafetyNet for security
+    implementation("com.google.android.gms:play-services-safetynet:18.0.1")
+    
+    // Enhanced Room for Phase 3 schema
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
     
     // Desugaring for Java 8+ APIs
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")

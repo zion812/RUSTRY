@@ -29,11 +29,11 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
     }
     
     // Manually instantiate since migrating from Hilt
-    private val memoryManager: MemoryManager = MemoryManager(this)
-    private val securityManager: com.rio.rustry.security.SecurityManager = com.rio.rustry.security.SecurityManager(this)
-    private val networkManager: NetworkManager = NetworkManager(this)
-    private val databaseOptimizer: DatabaseOptimizer = DatabaseOptimizer()
-    private val optimizedImageLoader: OptimizedImageLoader = OptimizedImageLoader(this)
+    private lateinit var memoryManager: MemoryManager
+    private lateinit var securityManager: com.rio.rustry.security.SecurityManager
+    private lateinit var networkManager: NetworkManager
+    private lateinit var databaseOptimizer: DatabaseOptimizer
+    private lateinit var optimizedImageLoader: OptimizedImageLoader
     
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
@@ -110,7 +110,8 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
     
     private fun initializeSecurity() {
         try {
-            // Security manager initialized manually
+            // Initialize security manager manually since Hilt is disabled
+            securityManager = com.rio.rustry.security.SecurityManager(this)
             Log.d("Application", "Security initialized")
         } catch (e: Exception) {
             Log.e("Application", "Security initialization failed", e)
@@ -119,6 +120,8 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
     
     private fun initializeMemoryManagement() {
         try {
+            // Initialize memory manager manually since Hilt is disabled
+            memoryManager = MemoryManager(this)
             memoryManager.addMemoryListener(object : MemoryManager.MemoryListener {
                 override fun onMemoryEvent(event: MemoryManager.MemoryEvent) {
                     when (event) {
@@ -150,7 +153,8 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
     
     private fun initializeNetworking() {
         try {
-            // Network monitoring is automatically started in NetworkManager
+            // Initialize network manager manually since Hilt is disabled
+            networkManager = NetworkManager(this)
             Log.d("Application", "Networking initialized")
         } catch (e: Exception) {
             Log.e("Application", "Networking initialization failed", e)
@@ -159,6 +163,10 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
     
     private fun initializeDatabase() {
         try {
+            // Initialize database optimizer manually since Hilt is disabled
+            databaseOptimizer = DatabaseOptimizer()
+            optimizedImageLoader = OptimizedImageLoader(this)
+            
             // Start periodic cache cleanup
             applicationScope.launch {
                 while (true) {

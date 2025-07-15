@@ -1,11 +1,6 @@
 package com.rio.rustry
 
-import com.rio.rustry.data.model.*
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.junit.jupiter.MockitoExtension
+import kotlinx.coroutines.test.*
 import java.util.*
 
 /**
@@ -15,10 +10,6 @@ import java.util.*
  * for unit and integration testing.
  */
 object TestUtils {
-    
-    // Test Coroutine Utilities
-    val testDispatcher = TestCoroutineDispatcher()
-    val testScope = TestCoroutineScope(testDispatcher)
     
     // Test Data Factory
     object TestData {
@@ -274,41 +265,130 @@ object TestUtils {
         fun <T> unauthorizedResult(): Result<T> = 
             Result.failure(Exception("Unauthorized"))
     }
-    
-    // Test Extensions
-    fun <T> runTest(block: suspend TestCoroutineScope.() -> T): T {
-        return testScope.runBlockingTest {
-            block()
-        }
-    }
-    
-    fun advanceTimeBy(delayTimeMillis: Long) {
-        testDispatcher.advanceTimeBy(delayTimeMillis)
-    }
-    
-    fun advanceUntilIdle() {
-        testDispatcher.advanceUntilIdle()
-    }
 }
 
 /**
  * Base test class with common setup
  */
-@ExtendWith(MockitoExtension::class)
 abstract class BaseTest {
     
-    protected val testDispatcher = TestUtils.testDispatcher
-    protected val testScope = TestUtils.testScope
-    
-    protected fun <T> runTest(block: suspend TestCoroutineScope.() -> T): T {
-        return TestUtils.runTest(block)
-    }
-    
-    protected fun advanceTimeBy(delayTimeMillis: Long) {
-        TestUtils.advanceTimeBy(delayTimeMillis)
-    }
-    
-    protected fun advanceUntilIdle() {
-        TestUtils.advanceUntilIdle()
+    protected fun runTest(block: suspend () -> Unit) {
+        kotlinx.coroutines.test.runTest {
+            block()
+        }
     }
 }
+
+// Mock enums and data classes for testing
+enum class UserRole { FARMER, BUYER, VETERINARIAN, ADMIN }
+enum class HealthStatus { GOOD, FAIR, POOR, SICK }
+enum class VaccinationStatus { UP_TO_DATE, OVERDUE, NONE }
+enum class HealthEventType { VACCINATION, CHECKUP, TREATMENT, ILLNESS }
+enum class PaymentStatus { PENDING, PROCESSING, SUCCESS, FAILED, CANCELLED, REFUNDED, PARTIAL_REFUND }
+enum class PaymentMethod { CARD, UPI, NET_BANKING, WALLET, EMI, CASH_ON_DELIVERY }
+enum class TransferType { SALE, GIFT, INHERITANCE }
+enum class TransferStatus { PENDING, COMPLETED, CANCELLED }
+enum class CertificateType { OWNERSHIP, HEALTH, VACCINATION }
+enum class TipCategory { GENERAL_CARE, FEEDING, HEALTH, BREEDING }
+enum class TipPriority { LOW, MEDIUM, HIGH, URGENT }
+
+data class User(
+    val id: String,
+    val email: String,
+    val name: String,
+    val role: UserRole,
+    val phoneNumber: String,
+    val location: String,
+    val isVerified: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long
+)
+
+data class Fowl(
+    val id: String,
+    val ownerId: String,
+    val ownerName: String,
+    val breed: String,
+    val dateOfBirth: Date,
+    val gender: String,
+    val isTraceable: Boolean,
+    val price: Double,
+    val description: String,
+    val imageUrls: List<String>,
+    val location: String,
+    val healthStatus: HealthStatus,
+    val vaccinationStatus: VaccinationStatus,
+    val isForSale: Boolean,
+    val createdAt: Long,
+    val updatedAt: Long
+)
+
+data class HealthRecord(
+    val id: String,
+    val fowlId: String,
+    val type: HealthEventType,
+    val title: String,
+    val description: String,
+    val veterinarianName: String,
+    val date: Date,
+    val createdAt: Long,
+    val updatedAt: Long
+)
+
+data class PaymentTransaction(
+    val id: String,
+    val fowlId: String,
+    val buyerId: String,
+    val sellerId: String,
+    val amount: Double,
+    val platformFee: Double,
+    val totalAmount: Double,
+    val status: PaymentStatus,
+    val paymentMethod: PaymentMethod,
+    val createdAt: Long,
+    val updatedAt: Long
+)
+
+data class OwnershipTransfer(
+    val id: String,
+    val fowlId: String,
+    val fromUserId: String,
+    val toUserId: String,
+    val transferType: TransferType,
+    val transferPrice: Double,
+    val status: TransferStatus,
+    val createdAt: Long,
+    val updatedAt: Long
+)
+
+data class DigitalCertificate(
+    val id: String,
+    val fowlId: String,
+    val ownerId: String,
+    val certificateType: CertificateType,
+    val certificateNumber: String,
+    val issueDate: Long,
+    val isValid: Boolean,
+    val issuedBy: String,
+    val certificateVersion: String,
+    val currentOwnerName: String,
+    val previousOwnerName: String
+)
+
+data class Message(
+    val id: String,
+    val senderId: String,
+    val receiverId: String,
+    val content: String,
+    val timestamp: Long,
+    val isRead: Boolean
+)
+
+data class AIHealthTip(
+    val id: String,
+    val title: String,
+    val content: String,
+    val category: TipCategory,
+    val priority: TipPriority,
+    val createdAt: Long
+)
