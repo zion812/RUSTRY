@@ -12,13 +12,7 @@ data class VaccinationEvent(
     val vaccineName: String = "",
     val scheduledDate: Long = 0L,
     val completedDate: Long? = null,
-    val status: VaccinationStatus = VaccinationStatus.PENDING,
+    val status: com.rio.rustry.breeding.VaccinationStatus = com.rio.rustry.breeding.VaccinationStatus.PENDING,
     val notes: String = "",
     val reminderSet: Boolean = false
 )
-
-enum class VaccinationStatus {
-    PENDING,
-    COMPLETED,
-    OVERDUE
-}

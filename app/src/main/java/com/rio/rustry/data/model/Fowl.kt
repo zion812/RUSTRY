@@ -37,5 +37,6 @@ data class Fowl(
     val dateOfBirth: Date = Date(),
     val parentIds: List<String> = emptyList(),
     val proofImageUrls: List<String> = emptyList(),
-    val isAvailable: Boolean = true
+    val isAvailable: Boolean = true,
+    val boostExpiry: Long? = null
 )

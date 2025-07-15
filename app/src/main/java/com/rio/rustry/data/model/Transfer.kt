@@ -19,9 +19,3 @@ data class Transfer(
     val signature: String? = null,
     val verified: Boolean = false
 )
-
-enum class TransferStatus {
-    PENDING,
-    VERIFIED,
-    REJECTED
-}

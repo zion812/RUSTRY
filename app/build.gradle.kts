@@ -155,6 +155,7 @@ dependencies {
     
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.8.3")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     
     // ViewModel and Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
