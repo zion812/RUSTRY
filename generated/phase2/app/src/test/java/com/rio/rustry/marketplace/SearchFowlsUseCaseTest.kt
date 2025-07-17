@@ -41,7 +41,7 @@ class SearchFowlsUseCaseTest {
         )
         
         coEvery { marketplaceRepository.searchFowls(searchParams) } returns 
-            flowOf(Result.success(expectedFowls))
+            flowOf(Result.Success(expectedFowls))
 
         // When
         val results = searchFowlsUseCase(searchParams).toList()
@@ -64,7 +64,7 @@ class SearchFowlsUseCaseTest {
         val exception = Exception("Network error")
         
         coEvery { marketplaceRepository.searchFowls(searchParams) } returns 
-            flowOf(Result.failure(exception))
+            flowOf(Result.Error(exception))
 
         // When
         val results = searchFowlsUseCase(searchParams).toList()
@@ -94,7 +94,7 @@ class SearchFowlsUseCaseTest {
         )
         
         coEvery { marketplaceRepository.searchFowls(searchParams) } returns 
-            flowOf(Result.success(expectedFowls))
+            flowOf(Result.Success(expectedFowls))
 
         // When
         val results = searchFowlsUseCase(searchParams).toList()
@@ -125,7 +125,7 @@ class SearchFowlsUseCaseTest {
         )
         
         coEvery { marketplaceRepository.searchFowls(searchParams) } returns 
-            flowOf(Result.success(expectedFowls))
+            flowOf(Result.Success(expectedFowls))
 
         // When
         val results = searchFowlsUseCase(searchParams).toList()
@@ -151,7 +151,7 @@ class SearchFowlsUseCaseTest {
         )
         
         coEvery { marketplaceRepository.searchFowls(searchParams) } returns 
-            flowOf(Result.success(expectedFowls))
+            flowOf(Result.Success(expectedFowls))
 
         // When
         val results = searchFowlsUseCase(searchParams).toList()

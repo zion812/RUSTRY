@@ -36,9 +36,9 @@ class GooglePayHelper(
                 currency = request.currency
             )
             
-            Result.success(result)
+            Result.Success(result)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     

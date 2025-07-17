@@ -6,15 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rio.rustry.domain.usecase.ExportTreeUseCase
 import com.rio.rustry.domain.repository.BreedingRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.rio.rustry.domain.model.FamilyTree
+import com.rio.rustry.domain.model.Result
+import com.rio.rustry.domain.model.FowlRecord
+import com.rio.rustry.domain.model.BreederStatus
+import com.rio.rustry.domain.model.LifecycleEvent
+import com.rio.rustry.domain.model.VaccinationEvent
+import com.rio.rustry.domain.model.VaccinationStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class BreedingViewModel @Inject constructor(
+class BreedingViewModel(
     private val breedingRepository: BreedingRepository,
     private val exportTreeUseCase: ExportTreeUseCase
 ) : ViewModel() {
@@ -25,11 +29,11 @@ class BreedingViewModel @Inject constructor(
     fun loadFamilyTree(fowlId: String) {
         viewModelScope.launch {
             _uiState.value = BreedingUiState.Loading
-            try {
-                val familyTree = breedingRepository.getFamilyTree(fowlId)
-                _uiState.value = BreedingUiState.FamilyTreeLoaded(familyTree)
-            } catch (e: Exception) {
-                _uiState.value = BreedingUiState.Error(e.message ?: "Failed to load family tree")
+            val result = breedingRepository.generateFamilyTree(fowlId)
+            _uiState.value = when (result) {
+                is Result.Success -> BreedingUiState.FamilyTreeLoaded(result.data)
+                is Result.Error -> BreedingUiState.Error(result.exception.message ?: "Error")
+                else -> BreedingUiState.Error("Unexpected result")
             }
         }
     }
@@ -132,11 +136,90 @@ class BreedingViewModel @Inject constructor(
             }
         }
     }
+
+    // Lifecycle tracking methods
+    fun addRecord(fowlId: String, record: FowlRecord) {
+        viewModelScope.launch {
+            try {
+                breedingRepository.addFowlRecord(fowlId, record)
+                _uiState.value = BreedingUiState.RecordAdded("Record added successfully")
+            } catch (e: Exception) {
+                _uiState.value = BreedingUiState.Error(e.message ?: "Failed to add record")
+            }
+        }
+    }
+
+    fun markBreederStatus(fowlId: String, status: BreederStatus) {
+        viewModelScope.launch {
+            try {
+                breedingRepository.updateBreederStatus(fowlId, status)
+                _uiState.value = BreedingUiState.BreederStatusUpdated("Breeder status updated successfully")
+            } catch (e: Exception) {
+                _uiState.value = BreedingUiState.Error(e.message ?: "Failed to update breeder status")
+            }
+        }
+    }
+
+    fun recordMortality(fowlId: String, cause: String, date: Long, notes: String? = null) {
+        viewModelScope.launch {
+            try {
+                val mortalityEvent = LifecycleEvent(
+                    id = "",
+                    fowlId = fowlId,
+                    eventType = "MORTALITY",
+                    date = date,
+                    description = cause,
+                    notes = notes,
+                    timestamp = System.currentTimeMillis()
+                )
+                breedingRepository.recordLifecycleEvent(fowlId, mortalityEvent)
+                _uiState.value = BreedingUiState.MortalityRecorded("Mortality recorded successfully")
+            } catch (e: Exception) {
+                _uiState.value = BreedingUiState.Error(e.message ?: "Failed to record mortality")
+            }
+        }
+    }
+
+    fun updateFowlStatus(fowlId: String, status: String, notes: String? = null) {
+        viewModelScope.launch {
+            try {
+                val statusEvent = LifecycleEvent(
+                    id = "",
+                    fowlId = fowlId,
+                    eventType = "STATUS_UPDATE",
+                    date = System.currentTimeMillis(),
+                    description = status,
+                    notes = notes,
+                    timestamp = System.currentTimeMillis()
+                )
+                breedingRepository.recordLifecycleEvent(fowlId, statusEvent)
+                _uiState.value = BreedingUiState.StatusUpdated("Status updated successfully")
+            } catch (e: Exception) {
+                _uiState.value = BreedingUiState.Error(e.message ?: "Failed to update status")
+            }
+        }
+    }
+
+    fun loadLifecycleHistory(fowlId: String) {
+        viewModelScope.launch {
+            try {
+                val events = breedingRepository.getLifecycleEvents(fowlId)
+                _uiState.value = BreedingUiState.LifecycleHistoryLoaded(events)
+            } catch (e: Exception) {
+                _uiState.value = BreedingUiState.Error(e.message ?: "Failed to load lifecycle history")
+            }
+        }
+    }
 }
 
 sealed class BreedingUiState {
     object Loading : BreedingUiState()
     data class FamilyTreeLoaded(val familyTree: FamilyTree) : BreedingUiState()
     data class VaccinationScheduleLoaded(val events: List<VaccinationEvent>) : BreedingUiState()
+    data class RecordAdded(val message: String) : BreedingUiState()
+    data class BreederStatusUpdated(val message: String) : BreedingUiState()
+    data class MortalityRecorded(val message: String) : BreedingUiState()
+    data class StatusUpdated(val message: String) : BreedingUiState()
+    data class LifecycleHistoryLoaded(val events: List<LifecycleEvent>) : BreedingUiState()
     data class Error(val message: String) : BreedingUiState()
 }

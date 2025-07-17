@@ -30,7 +30,7 @@ class HealthAlertWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             checkVaccinationSchedule()
-            Result.success()
+            Result.Success()
         } catch (e: Exception) {
             Result.retry()
         }

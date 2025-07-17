@@ -49,10 +49,10 @@ class FirebaseService(private val context: Context? = null) {
                 .await()
             
             analytics?.logEvent("fowl_added", null)
-            Result.success(fowlId)
+            Result.Success(fowlId)
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -68,10 +68,10 @@ class FirebaseService(private val context: Context? = null) {
             }
             
             analytics?.logEvent("fowls_fetched", null)
-            Result.success(fowls)
+            Result.Success(fowls)
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -88,10 +88,10 @@ class FirebaseService(private val context: Context? = null) {
             }
             
             analytics?.logEvent("marketplace_viewed", null)
-            Result.success(fowls)
+            Result.Success(fowls)
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -105,10 +105,10 @@ class FirebaseService(private val context: Context? = null) {
             val downloadUrl = imageRef.downloadUrl.await()
             
             analytics?.logEvent("image_uploaded", null)
-            Result.success(downloadUrl.toString())
+            Result.Success(downloadUrl.toString())
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -123,10 +123,10 @@ class FirebaseService(private val context: Context? = null) {
                 .await()
             
             analytics?.logEvent("profile_updated", null)
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -140,10 +140,10 @@ class FirebaseService(private val context: Context? = null) {
                 .await()
             
             val profile = snapshot.toObject(UserProfile::class.java)
-            Result.success(profile)
+            Result.Success(profile)
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -177,10 +177,10 @@ class FirebaseService(private val context: Context? = null) {
             // Test Crashlytics
             crashlytics.log("Firebase connection test successful")
             
-            Result.success("All Firebase services connected successfully")
+            Result.Success("All Firebase services connected successfully")
         } catch (e: Exception) {
             crashlytics.recordException(e)
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 }

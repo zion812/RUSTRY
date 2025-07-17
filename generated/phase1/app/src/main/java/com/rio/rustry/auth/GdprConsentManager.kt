@@ -47,7 +47,7 @@ class GdprConsentManager @Inject constructor(
      */
     suspend fun recordConsent(): Result<Unit> {
         val currentUser = auth.currentUser
-            ?: return Result.failure(Exception("User not authenticated"))
+            ?: return Result.Error(Exception("User not authenticated"))
         
         return try {
             val now = Timestamp.now()
@@ -68,9 +68,9 @@ class GdprConsentManager @Inject constructor(
                 preferences[consentKey] = true
             }
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception("Failed to record consent: ${e.message}"))
+            Result.Error(Exception("Failed to record consent: ${e.message}"))
         }
     }
     
@@ -79,7 +79,7 @@ class GdprConsentManager @Inject constructor(
      */
     suspend fun requestDeletion(): Result<Unit> {
         val currentUser = auth.currentUser
-            ?: return Result.failure(Exception("User not authenticated"))
+            ?: return Result.Error(Exception("User not authenticated"))
         
         return try {
             val now = Timestamp.now()
@@ -110,9 +110,9 @@ class GdprConsentManager @Inject constructor(
                 preferences[consentKey] = false
             }
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception("Failed to request deletion: ${e.message}"))
+            Result.Error(Exception("Failed to request deletion: ${e.message}"))
         }
     }
     

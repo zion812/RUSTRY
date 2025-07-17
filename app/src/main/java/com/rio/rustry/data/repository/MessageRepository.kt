@@ -50,9 +50,9 @@ class MessageRepository(
                 .set(conversation)
                 .await()
             
-            Result.success(messageRef.id)
+            Result.Success(messageRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -89,9 +89,9 @@ class MessageRepository(
                 doc.toObject(Conversation::class.java)?.copy(id = doc.id)
             }
             
-            Result.success(conversations)
+            Result.Success(conversations)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -111,9 +111,9 @@ class MessageRepository(
             }
             batch.commit().await()
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     

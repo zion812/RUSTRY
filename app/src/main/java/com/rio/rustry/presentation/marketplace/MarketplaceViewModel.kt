@@ -30,7 +30,7 @@ data class MarketplaceUiState(
     val currentPage: Int = 0
 )
 
-class MarketplaceViewModel @Inject constructor(
+class MarketplaceViewModel(
     private val fowlRepository: DataFowlRepository
 ) : ViewModel() {
 

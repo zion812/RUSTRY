@@ -1,245 +1,173 @@
 package com.rio.rustry.data.model
 
-import java.util.*
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 /**
- * Health record domain model for tracking fowl health events
+ * Health record data model for tracking fowl health
  */
+@Entity(tableName = "health_records")
+@Serializable
 data class HealthRecord(
+    @PrimaryKey
     val id: String = "",
     val fowlId: String = "",
-    val type: HealthEventType = HealthEventType.CHECKUP,
-    val eventType: HealthEventType = HealthEventType.CHECKUP,
-    val title: String = "",
-    val severity: HealthSeverity = HealthSeverity.LOW,
-    val description: String = "",
+    val userId: String = "",
+    val veterinarianId: String = "",
+    
+    // Record details
+    val recordType: String = "", // CHECKUP, VACCINATION, TREATMENT, EMERGENCY, DEATH
+    val recordDate: Long = 0L,
+    val nextCheckupDate: Long? = null,
+    
+    // Health assessment
+    val overallHealth: String = "", // EXCELLENT, GOOD, FAIR, POOR, CRITICAL
+    val weight: Double = 0.0,
+    val temperature: Double = 0.0,
+    val heartRate: Int = 0,
+    val respiratoryRate: Int = 0,
+    
+    // Physical examination
+    val eyesCondition: String = "",
+    val beakCondition: String = "",
+    val combCondition: String = "",
+    val feathersCondition: String = "",
+    val legsCondition: String = "",
+    val clawsCondition: String = "",
+    
+    // Symptoms and conditions
     val symptoms: List<String> = emptyList(),
-    val treatment: String = "",
-    val medications: List<String> = emptyList(),
-    val medication: String = "",
-    val dosage: String = "",
-    val veterinarianName: String = "",
-    val vetName: String = "",
-    val vetLicense: String = "",
-    val veterinarianContact: String = "",
-    val veterinarian: String = "",
-    val status: String = "Healthy", // Healthy, Sick, Recovering, Under Treatment
-    val date: Date = Date(),
-    val followUpRequired: Boolean = false,
-    val followUpDate: Date? = null,
-    val nextDueDate: Long? = null,
-    val nextAppointment: Date? = null,
-    val attachments: List<String> = emptyList(), // URLs to images/documents
-    val proofImageUrls: List<String> = emptyList(),
-    val certificateUrls: List<String> = emptyList(),
-    val cost: Double = 0.0,
-    val temperature: Double? = null,
-    val weight: Double? = null,
-    val notes: String = "",
-    val createdBy: String = "",
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
-)
-
-/**
- * Vaccination record specific model
- */
-data class VaccinationRecord(
-    val id: String = "",
-    val fowlId: String = "",
-    val vaccineName: String = "",
-    val vaccineType: String = "",
-    val administeredDate: Date = Date(),
-    val nextDueDate: Date? = null,
-    val veterinarian: String = "",
-    val batchNumber: String = "",
-    val manufacturer: String = "",
-    val sideEffects: String = "",
-    val isCompleted: Boolean = true,
-    val createdAt: Date = Date(),
-    val updatedAt: Date = Date()
-)
-
-/**
- * Treatment record for medical treatments
- */
-data class TreatmentRecord(
-    val id: String = "",
-    val fowlId: String = "",
-    val condition: String = "",
-    val treatment: String = "",
-    val startDate: Date = Date(),
-    val endDate: Date? = null,
-    val veterinarian: String = "",
-    val medication: List<String> = emptyList(),
+    val diagnosis: String = "",
+    val conditions: List<String> = emptyList(),
+    val severity: String = "", // MILD, MODERATE, SEVERE, CRITICAL
+    
+    // Treatments and medications
+    val treatments: List<Treatment> = emptyList(),
+    val medications: List<Medication> = emptyList(),
     val dosageInstructions: String = "",
-    val progress: String = "",
-    val isCompleted: Boolean = false,
-    val cost: Double = 0.0,
-    val createdAt: Date = Date(),
-    val updatedAt: Date = Date()
+    val treatmentDuration: Int = 0, // days
+    
+    // Vaccinations
+    val vaccinations: List<Vaccination> = emptyList(),
+    val nextVaccinationDate: Long? = null,
+    val vaccinationSchedule: List<String> = emptyList(),
+    
+    // Laboratory tests
+    val labTests: List<LabTest> = emptyList(),
+    val testResults: Map<String, String> = emptyMap(),
+    val abnormalFindings: List<String> = emptyList(),
+    
+    // Behavioral observations
+    val behaviorChanges: List<String> = emptyList(),
+    val appetiteLevel: String = "", // NORMAL, INCREASED, DECREASED, NONE
+    val activityLevel: String = "", // NORMAL, INCREASED, DECREASED, LETHARGIC
+    val socialBehavior: String = "", // NORMAL, AGGRESSIVE, WITHDRAWN, ISOLATED
+    
+    // Environmental factors
+    val housingConditions: String = "",
+    val feedQuality: String = "",
+    val waterQuality: String = "",
+    val stressFactors: List<String> = emptyList(),
+    
+    // Documentation
+    val notes: String = "",
+    val images: List<String> = emptyList(),
+    val videos: List<String> = emptyList(),
+    val documents: List<String> = emptyList(),
+    
+    // Follow-up
+    val followUpRequired: Boolean = false,
+    val followUpDate: Long? = null,
+    val followUpInstructions: String = "",
+    val recoveryExpected: Boolean = true,
+    val recoveryTimeEstimate: Int = 0, // days
+    
+    // Costs
+    val consultationFee: Double = 0.0,
+    val medicationCost: Double = 0.0,
+    val testCost: Double = 0.0,
+    val totalCost: Double = 0.0,
+    
+    // Timestamps
+    val createdAt: Long = 0L,
+    val updatedAt: Long = 0L,
+    val completedAt: Long? = null,
+    
+    // Status
+    val status: String = "", // ACTIVE, COMPLETED, CANCELLED
+    val isEmergency: Boolean = false,
+    val isContagious: Boolean = false,
+    val quarantineRequired: Boolean = false,
+    
+    // Sync status
+    val isSynced: Boolean = true,
+    val needsSync: Boolean = false
 )
 
-data class HealthSummary(
-    val fowlId: String = "",
-    val overallHealth: HealthStatus = HealthStatus.GOOD,
-    val lastCheckupDate: Date? = null,
-    val totalRecords: Int = 0,
-    val activeIssues: Int = 0,
-    val upcomingReminders: Int = 0,
-    val vaccinationStatus: VaccinationStatus = VaccinationStatus.UP_TO_DATE,
-    val lastVaccinationDate: Date? = null,
-    val nextVaccinationDue: Date? = null,
-    val commonIssues: List<HealthEventType> = emptyList(),
-    val healthScore: Int = 100, // 0-100 scale
-    val riskFactors: List<String> = emptyList(),
-    val recommendations: List<String> = emptyList()
+/**
+ * Treatment data class
+ */
+@Serializable
+data class Treatment(
+    val name: String,
+    val type: String, // MEDICATION, SURGERY, THERAPY, ISOLATION
+    val startDate: Long,
+    val endDate: Long? = null,
+    val frequency: String,
+    val dosage: String,
+    val instructions: String,
+    val isCompleted: Boolean = false
 )
 
-data class HealthReminder(
-    val id: String = "",
-    val fowlId: String = "",
-    val title: String = "",
-    val description: String = "",
-    val type: ReminderType = ReminderType.VACCINATION,
-    val dueDate: Date = Date(),
-    val isCompleted: Boolean = false,
-    val priority: HealthSeverity = HealthSeverity.MEDIUM,
-    val createdAt: Long = System.currentTimeMillis()
+/**
+ * Medication data class
+ */
+@Serializable
+data class Medication(
+    val name: String,
+    val type: String, // ANTIBIOTIC, ANTIVIRAL, ANTIFUNGAL, VITAMIN, SUPPLEMENT
+    val dosage: String,
+    val frequency: String,
+    val duration: Int, // days
+    val route: String, // ORAL, INJECTION, TOPICAL
+    val startDate: Long,
+    val endDate: Long,
+    val sideEffects: List<String> = emptyList(),
+    val isCompleted: Boolean = false
 )
 
-data class HealthAlert(
-    val id: String = "",
-    val fowlId: String = "",
-    val alertType: AlertType = AlertType.HEALTH_ISSUE,
-    val title: String = "",
-    val message: String = "",
-    val severity: HealthSeverity = HealthSeverity.MEDIUM,
-    val isRead: Boolean = false,
-    val actionRequired: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
+/**
+ * Vaccination data class
+ */
+@Serializable
+data class Vaccination(
+    val name: String,
+    val type: String, // LIVE, KILLED, RECOMBINANT
+    val manufacturer: String,
+    val batchNumber: String,
+    val expiryDate: Long,
+    val administrationDate: Long,
+    val administrationRoute: String, // SUBCUTANEOUS, INTRAMUSCULAR, ORAL, NASAL
+    val dose: String,
+    val boosterRequired: Boolean = false,
+    val boosterDate: Long? = null,
+    val reactions: List<String> = emptyList()
 )
 
-data class AIHealthTip(
-    val id: String = "",
-    val title: String = "",
-    val content: String = "",
-    val description: String = "",
-    val category: TipCategory = TipCategory.GENERAL,
-    val priority: TipPriority = TipPriority.MEDIUM,
-    val urgencyLevel: Int = 0, // 0-10 scale
-    val dueDate: Long? = null,
-    val symptoms: List<String> = emptyList(),
-    val prevention: List<String> = emptyList(),
-    val fowlAge: Int = 0, // Age in weeks
-    val ageRange: String = "",
-    val frequency: String = "",
-    val estimatedCost: Double = 0.0,
-    val actionRequired: Boolean = false,
-    val vetConsultationRequired: Boolean = false,
-    val applicableBreeds: List<String> = emptyList(),
-    val seasonalRelevance: List<String> = emptyList(), // Spring, Summer, Fall, Winter
-    val tags: List<String> = emptyList(),
-    val imageUrl: String = "",
-    val sourceUrl: String = "",
-    val confidence: Double = 0.0, // AI confidence score 0-1
-    val createdAt: Long = System.currentTimeMillis(),
-    val isBookmarked: Boolean = false
+/**
+ * Lab test data class
+ */
+@Serializable
+data class LabTest(
+    val name: String,
+    val type: String, // BLOOD, FECAL, SWAB, BIOPSY
+    val sampleCollectionDate: Long,
+    val testDate: Long,
+    val results: Map<String, String> = emptyMap(),
+    val normalRanges: Map<String, String> = emptyMap(),
+    val interpretation: String,
+    val isAbnormal: Boolean = false,
+    val labName: String,
+    val reportUrl: String = ""
 )
-
-data class CertificateHealthSummary(
-    val overallStatus: HealthStatus = HealthStatus.GOOD,
-    val lastCheckupDate: Long? = null,
-    val lastVaccinationDate: Long? = null,
-    val vaccinationStatus: VaccinationStatus = VaccinationStatus.UP_TO_DATE,
-    val vaccinationCount: Int = 0,
-    val activeIssues: List<String> = emptyList(),
-    val healthScore: Int = 100,
-    val healthRecordsCount: Int = 0,
-    val vetCertificates: Int = 0,
-    val currentMedications: List<String> = emptyList(),
-    val veterinarianCertification: String = "",
-    val certificationDate: Long = System.currentTimeMillis()
-)
-
-// Enums
-enum class HealthEventType(val displayName: String) {
-    CHECKUP("Regular Checkup"),
-    VACCINATION("Vaccination"),
-    ILLNESS("Illness"),
-    INJURY("Injury"),
-    MEDICATION("Medication"),
-    TREATMENT("Treatment"),
-    SURGERY("Surgery"),
-    EMERGENCY("Emergency"),
-    PREVENTIVE("Preventive Care"),
-    BREEDING("Breeding Related"),
-    NUTRITION("Nutrition Issue"),
-    BEHAVIORAL("Behavioral Issue"),
-    OTHER("Other")
-}
-
-enum class HealthSeverity(val displayName: String, val color: String) {
-    LOW("Low", "#4CAF50"),
-    MEDIUM("Medium", "#FF9800"),
-    HIGH("High", "#F44336"),
-    CRITICAL("Critical", "#D32F2F")
-}
-
-enum class HealthStatus(val displayName: String) {
-    EXCELLENT("Excellent"),
-    GOOD("Good"),
-    FAIR("Fair"),
-    POOR("Poor"),
-    CRITICAL("Critical")
-}
-
-enum class VaccinationStatus(val displayName: String) {
-    UP_TO_DATE("Up to Date"),
-    DUE_SOON("Due Soon"),
-    OVERDUE("Overdue"),
-    NOT_STARTED("Not Started"),
-    INCOMPLETE("Incomplete")
-}
-
-enum class ReminderType(val displayName: String) {
-    VACCINATION("Vaccination"),
-    CHECKUP("Health Checkup"),
-    MEDICATION("Medication"),
-    FOLLOW_UP("Follow-up"),
-    BREEDING("Breeding"),
-    NUTRITION("Nutrition"),
-    OTHER("Other")
-}
-
-enum class AlertType(val displayName: String) {
-    HEALTH_ISSUE("Health Issue"),
-    VACCINATION_DUE("Vaccination Due"),
-    MEDICATION_REMINDER("Medication Reminder"),
-    EMERGENCY("Emergency"),
-    FOLLOW_UP("Follow-up Required"),
-    SYSTEM("System Alert")
-}
-
-enum class TipCategory(val displayName: String) {
-    GENERAL("General Care"),
-    GENERAL_CARE("General Care"),
-    NUTRITION("Nutrition"),
-    BREEDING("Breeding"),
-    DISEASE_PREVENTION("Disease Prevention"),
-    HOUSING("Housing & Environment"),
-    BEHAVIOR("Behavior"),
-    EMERGENCY("Emergency Care"),
-    SEASONAL("Seasonal Care"),
-    SEASONAL_CARE("Seasonal Care"),
-    VACCINATION("Vaccination"),
-    MEDICATION("Medication"),
-    HYGIENE("Hygiene")
-}
-
-enum class TipPriority(val displayName: String, val color: String) {
-    LOW("Low Priority", "#4CAF50"),
-    MEDIUM("Medium Priority", "#FF9800"),
-    HIGH("High Priority", "#F44336"),
-    URGENT("Urgent", "#9C27B0")
-}

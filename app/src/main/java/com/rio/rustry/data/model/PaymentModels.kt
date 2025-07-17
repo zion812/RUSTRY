@@ -35,7 +35,7 @@ data class Payment(
     val updatedAt: Long = System.currentTimeMillis()
 )
 
-data class Transaction(
+data class PaymentTransaction(
     val id: String = "",
     val fowlId: String = "",
     val fowlTitle: String = "",

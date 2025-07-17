@@ -378,3 +378,21 @@ data class TraceabilityEntity(
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false
 )
+
+/**
+ * User Favorites Entity for tracking favorite fowls
+ */
+@Entity(tableName = "user_favorites")
+data class UserFavoriteEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    
+    @ColumnInfo(name = "fowl_id")
+    val fowlId: String,
+    
+    @ColumnInfo(name = "user_id")
+    val userId: String,
+    
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis()
+)

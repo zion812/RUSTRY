@@ -1,0 +1,304 @@
+package com.rio.rustry.utils
+
+import android.content.Context
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.io.File
+import android.util.Log
+
+/**
+ * Specialized cache manager for application data with TTL and categories
+ */
+class DataCacheManager(private val context: Context) {
+    
+    companion object {
+        private const val TAG = "DataCacheManager"
+        private const val CACHE_DIR = "data_cache"
+        private const val DEFAULT_TTL_MS = 10 * 60 * 1000L // 10 minutes
+    }
+    
+    private val cacheMutex = Mutex()
+    private val json = Json { ignoreUnknownKeys = true }
+    
+    // Cache directory
+    private val cacheDir = File(context.cacheDir, CACHE_DIR).apply {
+        if (!exists()) mkdirs()
+    }
+    
+    /**
+     * Cache entry with metadata
+     */
+    @Serializable
+    data class CacheEntry(
+        val data: String,
+        val timestamp: Long,
+        val ttl: Long,
+        val category: String,
+        val version: Int = 1
+    ) {
+        fun isExpired(): Boolean = System.currentTimeMillis() - timestamp > ttl
+    }
+    
+    /**
+     * Cache categories for better organization
+     */
+    enum class CacheCategory(val value: String) {
+        FOWLS("fowls"),
+        USERS("users"),
+        TRANSACTIONS("transactions"),
+        BREEDING("breeding"),
+        HEALTH("health"),
+        MARKETPLACE("marketplace"),
+        ANALYTICS("analytics"),
+        SETTINGS("settings")
+    }
+    
+    /**
+     * Put data in cache with category and TTL
+     */
+    suspend fun <T> put(
+        key: String, 
+        data: T, 
+        category: CacheCategory = CacheCategory.FOWLS,
+        ttlMs: Long = DEFAULT_TTL_MS
+    ) {
+        cacheMutex.withLock {
+            try {
+                val serializedData = json.encodeToString(data)
+                val cacheEntry = CacheEntry(
+                    data = serializedData,
+                    timestamp = System.currentTimeMillis(),
+                    ttl = ttlMs,
+                    category = category.value
+                )
+                
+                val categoryDir = File(cacheDir, category.value).apply {
+                    if (!exists()) mkdirs()
+                }
+                
+                val cacheFile = File(categoryDir, key.hashCode().toString())
+                cacheFile.writeText(json.encodeToString(cacheEntry))
+                
+                Log.d(TAG, "Cached data for key: $key in category: ${category.value}")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to cache data for key: $key", e)
+            }
+        }
+    }
+    
+    /**
+     * Get data from cache
+     */
+    suspend inline fun <reified T> get(
+        key: String, 
+        category: CacheCategory = CacheCategory.FOWLS
+    ): T? {
+        return cacheMutex.withLock {
+            try {
+                val categoryDir = File(cacheDir, category.value)
+                val cacheFile = File(categoryDir, key.hashCode().toString())
+                
+                if (!cacheFile.exists()) {
+                    return@withLock null
+                }
+                
+                val cacheEntry = json.decodeFromString<CacheEntry>(cacheFile.readText())
+                
+                if (cacheEntry.isExpired()) {
+                    cacheFile.delete()
+                    return@withLock null
+                }
+                
+                json.decodeFromString<T>(cacheEntry.data)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get cached data for key: $key", e)
+                null
+            }
+        }
+    }
+    
+    /**
+     * Check if key exists and is not expired
+     */
+    suspend fun contains(key: String, category: CacheCategory = CacheCategory.FOWLS): Boolean {
+        return get<Any>(key, category) != null
+    }
+    
+    /**
+     * Remove specific key from cache
+     */
+    suspend fun remove(key: String, category: CacheCategory = CacheCategory.FOWLS) {
+        cacheMutex.withLock {
+            try {
+                val categoryDir = File(cacheDir, category.value)
+                val cacheFile = File(categoryDir, key.hashCode().toString())
+                
+                if (cacheFile.exists()) {
+                    cacheFile.delete()
+                    Log.d(TAG, "Removed cached data for key: $key")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to remove cached data for key: $key", e)
+            }
+        }
+    }
+    
+    /**
+     * Clear cache for specific category
+     */
+    suspend fun clearCategory(category: CacheCategory) {
+        cacheMutex.withLock {
+            try {
+                val categoryDir = File(cacheDir, category.value)
+                if (categoryDir.exists()) {
+                    categoryDir.listFiles()?.forEach { file ->
+                        file.delete()
+                    }
+                    Log.d(TAG, "Cleared cache for category: ${category.value}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to clear cache for category: ${category.value}", e)
+            }
+        }
+    }
+    
+    /**
+     * Clear all cache
+     */
+    suspend fun clearAll() {
+        cacheMutex.withLock {
+            try {
+                cacheDir.listFiles()?.forEach { categoryDir ->
+                    if (categoryDir.isDirectory) {
+                        categoryDir.listFiles()?.forEach { file ->
+                            file.delete()
+                        }
+                    }
+                }
+                Log.d(TAG, "Cleared all data cache")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to clear all cache", e)
+            }
+        }
+    }
+    
+    /**
+     * Clear expired entries across all categories
+     */
+    suspend fun clearExpired() {
+        cacheMutex.withLock {
+            try {
+                var expiredCount = 0
+                
+                cacheDir.listFiles()?.forEach { categoryDir ->
+                    if (categoryDir.isDirectory) {
+                        categoryDir.listFiles()?.forEach { file ->
+                            try {
+                                val cacheEntry = json.decodeFromString<CacheEntry>(file.readText())
+                                if (cacheEntry.isExpired()) {
+                                    file.delete()
+                                    expiredCount++
+                                }
+                            } catch (e: Exception) {
+                                // Delete corrupted files
+                                file.delete()
+                                expiredCount++
+                            }
+                        }
+                    }
+                }
+                
+                Log.d(TAG, "Cleared $expiredCount expired cache entries")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to clear expired cache", e)
+            }
+        }
+    }
+    
+    /**
+     * Get cache statistics by category
+     */
+    suspend fun getCacheStatistics(): Map<String, CacheStatistics> {
+        return cacheMutex.withLock {
+            try {
+                val statistics = mutableMapOf<String, CacheStatistics>()
+                
+                cacheDir.listFiles()?.forEach { categoryDir ->
+                    if (categoryDir.isDirectory) {
+                        val files = categoryDir.listFiles() ?: emptyArray()
+                        val totalSize = files.sumOf { it.length() }
+                        val expiredCount = files.count { file ->
+                            try {
+                                val cacheEntry = json.decodeFromString<CacheEntry>(file.readText())
+                                cacheEntry.isExpired()
+                            } catch (e: Exception) {
+                                true // Count corrupted files as expired
+                            }
+                        }
+                        
+                        statistics[categoryDir.name] = DataCacheStatistics(
+                            entryCount = files.size,
+                            totalSizeBytes = totalSize,
+                            expiredCount = expiredCount
+                        )
+                    }
+                }
+                
+                statistics
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get cache statistics", e)
+                emptyMap()
+            }
+        }
+    }
+    
+    /**
+     * Optimize cache by removing expired entries and old files
+     */
+    suspend fun optimizeCache() {
+        cacheMutex.withLock {
+            try {
+                clearExpired()
+                
+                // Remove oldest files if cache is too large
+                val maxCacheSize = 50 * 1024 * 1024L // 50MB
+                val currentSize = cacheDir.walkTopDown()
+                    .filter { it.isFile }
+                    .map { it.length() }
+                    .sum()
+                
+                if (currentSize > maxCacheSize) {
+                    val allFiles = cacheDir.walkTopDown()
+                        .filter { it.isFile }
+                        .sortedBy { it.lastModified() }
+                        .toList()
+                    
+                    var sizeToRemove = currentSize - (maxCacheSize * 0.8).toLong()
+                    
+                    for (file in allFiles) {
+                        if (sizeToRemove <= 0) break
+                        sizeToRemove -= file.length()
+                        file.delete()
+                    }
+                    
+                    Log.d(TAG, "Cache optimization completed")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to optimize cache", e)
+            }
+        }
+    }
+}
+
+/**
+ * Cache statistics data class
+ */
+data class DataCacheStatistics(
+    val entryCount: Int = 0,
+    val totalSizeBytes: Long = 0L,
+    val expiredCount: Int = 0
+)

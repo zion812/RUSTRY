@@ -251,19 +251,19 @@ object TestUtils {
     // Test Result Helpers
     object Results {
         
-        fun <T> successResult(data: T): Result<T> = Result.success(data)
+        fun <T> successResult(data: T): Result<T> = Result.Success(data)
         
         fun <T> failureResult(message: String): Result<T> = 
-            Result.failure(Exception(message))
+            Result.Error(Exception(message))
         
         fun <T> networkErrorResult(): Result<T> = 
-            Result.failure(Exception("Network error"))
+            Result.Error(Exception("Network error"))
         
         fun <T> notFoundResult(): Result<T> = 
-            Result.failure(Exception("Not found"))
+            Result.Error(Exception("Not found"))
         
         fun <T> unauthorizedResult(): Result<T> = 
-            Result.failure(Exception("Unauthorized"))
+            Result.Error(Exception("Unauthorized"))
     }
 }
 

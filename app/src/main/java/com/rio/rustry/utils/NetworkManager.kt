@@ -78,6 +78,10 @@ class NetworkManager(private val context: Context) {
         }
     }
     
+    fun isNetworkAvailable(): Boolean {
+        return _isConnected.value
+    }
+
     fun clearCache() {
         // Clear network-related cache if any
     }

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">ರಸ್ತ್ರಿ</string>
+    
+    <!-- Common -->
+    <string name="ok">ಸರಿ</string>
+    <string name="cancel">ರದ್ದುಮಾಡಿ</string>
+    <string name="retry">ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ</string>
+    <string name="loading">ಲೋಡ್ ಆಗುತ್ತಿದೆ...</string>
+    <string name="error">ದೋಷ</string>
+    <string name="success">ಯಶಸ್ಸು</string>
+    <string name="save">ಉಳಿಸಿ</string>
+    <string name="delete">ಅಳಿಸಿ</string>
+    <string name="edit">ಸಂಪಾದಿಸಿ</string>
+    <string name="create">ರಚಿಸಿ</string>
+    <string name="update">ನವೀಕರಿಸಿ</string>
+    <string name="back">ಹಿಂದೆ</string>
+    <string name="next">ಮುಂದೆ</string>
+    <string name="previous">ಹಿಂದಿನ</string>
+    <string name="close">ಮುಚ್ಚಿ</string>
+    
+    <!-- Navigation -->
+    <string name="home">ಮುಖ್ಯಪುಟ</string>
+    <string name="marketplace">ಮಾರುಕಟ್ಟೆ</string>
+    <string name="breeding">ಸಂತಾನೋತ್ಪತ್ತಿ</string>
+    <string name="health">ಆರೋಗ್ಯ</string>
+    <string name="social">ಸಾಮಾಜಿಕ</string>
+    <string name="profile">ಪ್ರೊಫೈಲ್</string>
+    <string name="settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+    
+    <!-- Transfers -->
+    <string name="transfers_title">ವರ್ಗಾವಣೆಗಳು</string>
+    <string name="create_transfer">ವರ್ಗಾವಣೆ ರಚಿಸಿ</string>
+    <string name="create_first_transfer">ಮೊದಲ ವರ್ಗಾವಣೆ ರಚಿಸಿ</string>
+    <string name="no_transfers_message">ಇನ್ನೂ ವರ್ಗಾವಣೆಗಳಿಲ್ಲ. ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಮೊದಲ ವರ್ಗಾವಣೆಯನ್ನು ರಚಿಸಿ.</string>
+    <string name="fowl_id">ಕೋಳಿ ID</string>
+    <string name="buyer_id">ಖರೀದಿದಾರ ID</string>
+    <string name="seller_id">ಮಾರಾಟಗಾರ ID</string>
+    <string name="price">ಬೆಲೆ</string>
+    <string name="notes_optional">ಟಿಪ್ಪಣಿಗಳು (ಐಚ್ಛಿಕ)</string>
+    <string name="transfer_status">ವರ್ಗಾವಣೆ ಸ್ಥಿತಿ</string>
+    <string name="verify_transfer">ವರ್ಗಾವಣೆ ಪರಿಶೀಲಿಸಿ</string>
+    <string name="cancel_transfer">ವರ್ಗಾವಣೆ ರದ್ದುಮಾಡಿ</string>
+    <string name="transfer_details">ವರ್ಗಾವಣೆ ವಿವರಗಳು</string>
+    <string name="verification_notes">ಪರಿಶೀಲನೆ ಟಿಪ್ಪಣಿಗಳು</string>
+    <string name="submit_verification">ಪರಿಶೀಲನೆ ಸಲ್ಲಿಸಿ</string>
+    <string name="transfer_created">ವರ್ಗಾವಣೆ ಯಶಸ್ವಿಯಾಗಿ ರಚಿಸಲಾಗಿದೆ</string>
+    <string name="transfer_cancelled">ವರ್ಗಾವಣೆ ಯಶಸ್ವಿಯಾಗಿ ರದ್ದುಮಾಡಲಾಗಿದೆ</string>
+    <string name="verification_submitted">ಪರಿಶೀಲನೆ ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ</string>
+    
+    <!-- Transfer Status -->
+    <string name="status_pending">ಬಾಕಿ</string>
+    <string name="status_pending_verification">ಪರಿಶೀಲನೆ ಬಾಕಿ</string>
+    <string name="status_completed">ಪೂರ್ಣಗೊಂಡಿದೆ</string>
+    <string name="status_cancelled">ರದ್ದುಮಾಡಲಾಗಿದೆ</string>
+    <string name="status_disputed">ವಿವಾದ</string>
+    
+    <!-- Breeding & Lifecycle -->
+    <string name="breeding_title">ಸಂತಾನೋತ್ಪತ್ತಿ ನಿರ್ವಹಣೆ</string>
+    <string name="lifecycle_tracking">ಜೀವನಚಕ್ರ ಟ್ರ್ಯಾಕಿಂಗ್</string>
+    <string name="add_record">ದಾಖಲೆ ಸೇರಿಸಿ</string>
+    <string name="record_type">ದಾಖಲೆ ಪ್ರಕಾರ</string>
+    <string name="record_date">ದಾಖಲೆ ದಿನಾಂಕ</string>
+    <string name="record_description">ವಿವರಣೆ</string>
+    <string name="record_notes">ಟಿಪ್ಪಣಿಗಳು</string>
+    <string name="breeder_status">ಸಂತಾನೋತ್ಪಾದಕ ಸ್ಥಿತಿ</string>
+    <string name="mark_as_breeder">ಸಂತಾನೋತ್ಪಾದಕವಾಗಿ ಗುರುತಿಸಿ</string>
+    <string name="mortality_record">ಮರಣ ದಾಖಲೆ</string>
+    <string name="cause_of_death">ಮರಣದ ಕಾರಣ</string>
+    <string name="mortality_date">ಮರಣ ದಿನಾಂಕ</string>
+    <string name="health_status">ಆರೋಗ್ಯ ಸ್ಥಿತಿ</string>
+    <string name="vaccination_schedule">ಲಸಿಕೆ ವೇಳಾಪಟ್ಟಿ</string>
+    <string name="family_tree">ಕುಟುಂಬ ವೃಕ್ಷ</string>
+    <string name="export_tree">ವೃಕ್ಷ ರಫ್ತು ಮಾಡಿ</string>
+    
+    <!-- AI & Image Analysis -->
+    <string name="ai_analysis">AI ವಿಶ್ಲೇಷಣೆ</string>
+    <string name="image_analysis">ಚಿತ್ರ ವಿಶ್ಲೇಷಣೆ</string>
+    <string name="select_image">ಚಿತ್ರ ಆಯ್ಕೆಮಾಡಿ</string>
+    <string name="camera">ಕ್ಯಾಮೆರಾ</string>
+    <string name="gallery">ಗ್ಯಾಲರಿ</string>
+    <string name="analyzing_image">AI ಮೂಲಕ ಚಿತ್ರ ವಿಶ್ಲೇಷಿಸುತ್ತಿದೆ...</string>
+    <string name="analysis_complete">ವಿಶ್ಲೇಷಣೆ ಪೂರ್ಣಗೊಂಡಿದೆ</string>
+    <string name="confidence">ವಿಶ್ವಾಸ</string>
+    <string name="detected_objects">ಪತ್ತೆಯಾದ ವಸ್ತುಗಳು</string>
+    <string name="image_quality">ಚಿತ್ರದ ಗುಣಮಟ್ಟ</string>
+    <string name="ai_recommendations">AI ಶಿಫಾರಸುಗಳು</string>
+    <string name="breed_detection">ಜಾತಿ ಪತ್ತೆ</string>
+    <string name="health_assessment">ಆರೋಗ್ಯ ಮ��ಲ್ಯಮಾಪನ</string>
+    <string name="disease_detection">ರೋಗ ಪತ್ತೆ</string>
+    <string name="proof_verification">ಪುರಾವೆ ಪರಿಶೀಲನೆ</string>
+    <string name="verify_proof_upload">ಪುರಾವೆ ಅಪ್‌ಲೋಡ್ ಪರಿಶೀಲಿಸಿ</string>
+    <string name="expected_color">ನಿರೀಕ್ಷಿತ ಬಣ್ಣ</string>
+    <string name="expected_age">ನಿರೀಕ್ಷಿತ ವಯಸ್ಸು (ತಿಂಗಳುಗಳು)</string>
+    <string name="expected_price">ನಿರೀಕ್ಷಿತ ಬೆಲೆ</string>
+    <string name="verify_with_ai">AI ಮೂಲಕ ಪರಿಶೀಲಿಸಿ</string>
+    <string name="verification_successful">ಪರಿಶೀಲನೆ ಯಶಸ್ವಿಯಾಗಿದೆ</string>
+    <string name="verification_failed">ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ</string>
+</resources>

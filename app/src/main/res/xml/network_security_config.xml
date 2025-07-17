@@ -1,30 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- Production configuration with SSL pinning -->
     <domain-config cleartextTrafficPermitted="false">
+        <!-- Firebase domains -->
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">firebaseio.com</domain>
         <domain includeSubdomains="true">firebase.googleapis.com</domain>
         <domain includeSubdomains="true">firestore.googleapis.com</domain>
-        <domain includeSubdomains="true">storage.googleapis.com</domain>
-        <domain includeSubdomains="true">identitytoolkit.googleapis.com</domain>
+        
+        <!-- Razorpay domains -->
+        <domain includeSubdomains="true">razorpay.com</domain>
+        <domain includeSubdomains="true">api.razorpay.com</domain>
+        
+        <!-- Certificate pinning for enhanced security -->
         <pin-set expiration="2025-12-31">
-            <!-- Firebase/Google CA pins -->
+            <!-- Firebase/Google pins (these should be updated periodically) -->
+            <pin digest="SHA-256">47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</pin>
             <pin digest="SHA-256">YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg=</pin>
-            <pin digest="SHA-256">sRHdihwgkaib1P1gxX8HFszlD+7/gTfNvuAybgLPNis=</pin>
             <!-- Backup pins -->
-            <pin digest="SHA-256">JSMzqOOrtyOT1kmau6zKhgT676hGgczD5VMdRMyJZFA=</pin>
-            <pin digest="SHA-256">++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=</pin>
+            <pin digest="SHA-256">C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=</pin>
         </pin-set>
     </domain-config>
     
-    <!-- Allow cleartext traffic for development/testing -->
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
-        <domain includeSubdomains="true">127.0.0.1</domain>
-    </domain-config>
+    <!-- Debug configuration for development -->
+    <debug-overrides>
+        <trust-anchors>
+            <!-- Trust user added CAs for debugging -->
+            <certificates src="user"/>
+            <!-- Trust system CAs -->
+            <certificates src="system"/>
+        </trust-anchors>
+    </debug-overrides>
     
-    <!-- Default configuration for other domains -->
+    <!-- Base configuration -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
+            <!-- Trust system CAs -->
             <certificates src="system"/>
         </trust-anchors>
     </base-config>

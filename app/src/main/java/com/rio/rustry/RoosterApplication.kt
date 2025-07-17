@@ -41,12 +41,10 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
         super.onCreate()
         INSTANCE = this
         
-        // Initialize Koin
+        // Initialize Koin with all modules
         startKoin {
             androidContext(this@RoosterApplication)
-            modules(module {
-                // Add module definitions here as needed
-            })
+            modules(com.rio.rustry.di.allModules)
         }
         
         // Initialize core components
@@ -61,7 +59,7 @@ class RoosterApplication : Application(), ComponentCallbacks2 {
         // Start background optimizations
         startBackgroundOptimizations()
         
-        Log.i("Application", "Rooster Platform initialized successfully")
+        Log.i("Application", "Rooster Platform initialized with modernized architecture")
     }
     
     // Rest of the file remains the same

@@ -50,27 +50,6 @@ data class Flock(
 )
 
 /**
- * Health Record domain model for health tracking
- */
-data class HealthRecord(
-    val id: String = "",
-    val flockId: String = "",
-    val type: String = "", // VACCINATION, TREATMENT, CHECKUP
-    val date: Long = System.currentTimeMillis(),
-    val details: String = "",
-    val photoUrl: String = "",
-    val veterinarianId: String = "",
-    val medicationUsed: String = "",
-    val nextDueDate: Long? = null,
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis(),
-    val isDeleted: Boolean = false,
-    val needsSync: Boolean = true,
-    val lastSyncedAt: Long? = null,
-    val offlineChanges: Map<String, String> = emptyMap()
-)
-
-/**
  * Sale domain model for sales tracking
  */
 data class Sale(

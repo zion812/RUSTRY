@@ -3,6 +3,7 @@ package com.rio.rustry.data.local
 import androidx.paging.PagingSource
 import androidx.room.*
 import com.rio.rustry.data.local.entity.EnhancedFowlEntity
+import com.rio.rustry.data.local.entity.SyncQueueEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -116,16 +117,39 @@ interface FowlDao {
     
     // Pending changes for sync
     @Query("SELECT * FROM sync_queue WHERE status = 'PENDING'")
-    fun getPendingChanges(): Flow<List<SyncChange>>
+    fun getPendingChanges(): Flow<List<SyncQueueEntity>>
     
     @Query("UPDATE sync_queue SET status = 'SYNCED' WHERE id = :changeId")
     suspend fun markChangeSynced(changeId: Long)
+    
+    // Additional methods needed by FowlRepositoryImpl
+    @Query("SELECT * FROM fowls WHERE is_deleted = 0 ORDER BY updated_at DESC")
+    suspend fun getAllFowls(): List<EnhancedFowlEntity>
+    
+    @Query("SELECT * FROM fowls WHERE owner_id = :ownerId AND is_deleted = 0 ORDER BY updated_at DESC LIMIT :limit OFFSET :offset")
+    suspend fun getFowlsByOwner(ownerId: String, limit: Int, offset: Int): List<EnhancedFowlEntity>
+    
+    @Query("SELECT * FROM fowls WHERE is_for_sale = 1 AND is_deleted = 0 ORDER BY updated_at DESC LIMIT :limit OFFSET :offset")
+    suspend fun getAvailableFowls(limit: Int, offset: Int): List<EnhancedFowlEntity>
+    
+    @Query("SELECT * FROM fowls WHERE (breed LIKE :query OR description LIKE :query) AND is_deleted = 0")
+    suspend fun searchFowls(query: String): List<EnhancedFowlEntity>
+    
+    @Query("SELECT * FROM fowls WHERE breed = :breed AND is_deleted = 0")
+    suspend fun getFowlsByBreed(breed: String): List<EnhancedFowlEntity>
+    
+    @Query("SELECT * FROM fowls WHERE price BETWEEN :minPrice AND :maxPrice AND is_deleted = 0")
+    suspend fun getFowlsByPriceRange(minPrice: Double, maxPrice: Double): List<EnhancedFowlEntity>
+    
+    @Query("DELETE FROM fowls WHERE id = :fowlId")
+    suspend fun deleteFowl(fowlId: String)
+    
+    @Query("SELECT * FROM fowls WHERE needs_sync = 1 AND is_deleted = 0")
+    suspend fun getUnsyncedFowls(): List<EnhancedFowlEntity>
+    
+    @Query("SELECT COUNT(*) FROM fowls WHERE needs_sync = 1 AND is_deleted = 0")
+    suspend fun getUnsyncedFowlsCount(): Int
+    
+    @Query("DELETE FROM fowls")
+    suspend fun deleteAllFowls()
 }
-
-// Helper data class for sync operations
-data class SyncChange(
-    val id: Long,
-    val fowlId: String,
-    val operation: String, // INSERT, UPDATE, DELETE
-    val timestamp: Long
-)

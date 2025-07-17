@@ -5,15 +5,13 @@ package com.rio.rustry.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rio.rustry.domain.usecase.GetBreedingAnalyticsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import com.rio.rustry.domain.model.Result
 
-@HiltViewModel
-class BreedingAnalyticsViewModel @Inject constructor(
+class BreedingAnalyticsViewModel(
     private val getBreedingAnalyticsUseCase: GetBreedingAnalyticsUseCase
 ) : ViewModel() {
 
@@ -24,8 +22,20 @@ class BreedingAnalyticsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = BreedingAnalyticsUiState.Loading
             try {
-                val analytics = getBreedingAnalyticsUseCase(period)
-                _uiState.value = BreedingAnalyticsUiState.Success(analytics)
+                val result = getBreedingAnalyticsUseCase("current_user_id")
+                if (result is Result.Success) {
+                    _uiState.value = BreedingAnalyticsUiState.Success(
+                        BreedingAnalytics(
+                            hatchRate = result.data.breedingSuccessRate,
+                            mortalityRate = 100 - result.data.breedingSuccessRate,
+                            avgWeightGain = result.data.averageOffspringCount * 50,
+                            trendData = result.data.seasonalTrends.values.map { it.toDouble() },
+                            period = period
+                        )
+                    )
+                } else {
+                    _uiState.value = BreedingAnalyticsUiState.Error("Failed to load analytics")
+                }
             } catch (e: Exception) {
                 _uiState.value = BreedingAnalyticsUiState.Error(
                     e.message ?: "Failed to load analytics"

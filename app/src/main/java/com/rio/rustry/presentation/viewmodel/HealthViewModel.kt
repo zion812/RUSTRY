@@ -30,7 +30,7 @@ class HealthViewModel(
             
             try {
                 healthRepository.getHealthRecords(fowlId).collect { records ->
-                    _healthRecords.value = records.sortedByDescending { it.date }
+                    _healthRecords.value = records.sortedByDescending { it.recordDate }
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to load health records: ${e.message}"

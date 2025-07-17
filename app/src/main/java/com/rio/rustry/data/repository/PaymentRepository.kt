@@ -6,15 +6,15 @@ import kotlinx.coroutines.tasks.await
 import com.rio.rustry.di.FirebaseModule
 
 class PaymentRepository(
-    private val firestore: FirebaseFirestore = FirebaseModule.provideFirebaseFirestore()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     
     suspend fun createPayment(payment: Payment): Result<String> {
         return try {
             val docRef = firestore.collection("payments").add(payment).await()
-            Result.success(docRef.id)
+            Result.Success(docRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -27,12 +27,12 @@ class PaymentRepository(
             
             val payment = document.toObject(Payment::class.java)?.copy(id = document.id)
             if (payment != null) {
-                Result.success(payment)
+                Result.Success(payment)
             } else {
-                Result.failure(Exception("Payment not found"))
+                Result.Error(Exception("Payment not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -47,9 +47,9 @@ class PaymentRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -80,18 +80,18 @@ class PaymentRepository(
                 .distinctBy { it.id }
                 .sortedByDescending { it.createdAt }
             
-            Result.success(allPayments)
+            Result.Success(allPayments)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
     suspend fun createTransaction(transaction: Transaction): Result<String> {
         return try {
             val docRef = firestore.collection("transactions").add(transaction).await()
-            Result.success(docRef.id)
+            Result.Success(docRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -104,12 +104,12 @@ class PaymentRepository(
             
             val transaction = document.toObject(Transaction::class.java)?.copy(id = document.id)
             if (transaction != null) {
-                Result.success(transaction)
+                Result.Success(transaction)
             } else {
-                Result.failure(Exception("Transaction not found"))
+                Result.Error(Exception("Transaction not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -140,9 +140,9 @@ class PaymentRepository(
                 .distinctBy { it.id }
                 .sortedByDescending { it.createdAt }
             
-            Result.success(allTransactions)
+            Result.Success(allTransactions)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -160,9 +160,9 @@ class PaymentRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -181,9 +181,9 @@ class PaymentRepository(
                 doc.toObject(Transaction::class.java)?.copy(id = doc.id)
             }.filter { it.buyerId == userId || it.sellerId == userId }
             
-            Result.success(transactions)
+            Result.Success(transactions)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -201,13 +201,13 @@ class PaymentRepository(
             
             val config = document.toObject(PaymentConfig::class.java)
             if (config != null) {
-                Result.success(config)
+                Result.Success(config)
             } else {
                 // Return default config
-                Result.success(PaymentConfig())
+                Result.Success(PaymentConfig())
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -224,9 +224,9 @@ class PaymentRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -249,9 +249,9 @@ class PaymentRepository(
                 .document(paymentId)
                 .update(updateMap)
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     

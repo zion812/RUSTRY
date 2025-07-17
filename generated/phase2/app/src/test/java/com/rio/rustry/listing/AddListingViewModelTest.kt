@@ -201,7 +201,7 @@ class AddListingViewModelTest {
         viewModel.updatePrice("25.50")
         viewModel.addImages(listOf(mockk()))
         
-        coEvery { addFowlListingUseCase(any()) } returns Result.success("fowl123")
+        coEvery { addFowlListingUseCase(any()) } returns Result.Success("fowl123")
 
         // When
         viewModel.saveListing()
@@ -222,7 +222,7 @@ class AddListingViewModelTest {
         viewModel.addImages(listOf(mockk()))
         
         val errorMessage = "Network error"
-        coEvery { addFowlListingUseCase(any()) } returns Result.failure(Exception(errorMessage))
+        coEvery { addFowlListingUseCase(any()) } returns Result.Error(Exception(errorMessage))
 
         // When
         viewModel.saveListing()
@@ -240,7 +240,7 @@ class AddListingViewModelTest {
         val fowlId = "fowl123"
         val fowlDetail = createTestFowlDetail()
         
-        coEvery { getFowlDetailUseCase(fowlId) } returns flowOf(Result.success(fowlDetail))
+        coEvery { getFowlDetailUseCase(fowlId) } returns flowOf(Result.Success(fowlDetail))
 
         // When
         viewModel.loadFowl(fowlId)

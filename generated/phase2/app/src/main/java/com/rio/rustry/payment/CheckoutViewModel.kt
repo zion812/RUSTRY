@@ -93,7 +93,7 @@ class CheckoutViewModel @Inject constructor(
                 _uiState.update { 
                     it.copy(
                         isProcessingPayment = false,
-                        paymentResult = Result.failure(e)
+                        paymentResult = Result.Error(e)
                     )
                 }
             }

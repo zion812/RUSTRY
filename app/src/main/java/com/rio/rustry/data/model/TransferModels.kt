@@ -217,3 +217,14 @@ enum class TransferRequestStatus(val displayName: String) {
     EXPIRED("Expired"),
     WITHDRAWN("Withdrawn")
 }
+data class CertificateHealthSummary(
+    val overallHealth: String = "HEALTHY",
+    val lastVaccination: Long? = null,
+    val lastHealthCheck: Long? = null,
+    val healthIssues: List<String> = emptyList(),
+    val veterinarianNotes: String = "",
+    val certificateNumber: String = "",
+    val issuedBy: String = "",
+    val issuedDate: Long = System.currentTimeMillis(),
+    val expiryDate: Long? = null
+)

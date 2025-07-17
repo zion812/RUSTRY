@@ -1,0 +1,340 @@
+package com.rio.rustry.utils
+
+import android.content.Context
+import android.util.LruCache
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.io.File
+import android.util.Log
+
+/**
+ * Comprehensive caching strategy with multi-level caching
+ * 
+ * Features:
+ * - Memory cache (LRU) for frequently accessed data
+ * - Disk cache for persistent storage
+ * - TTL (Time To Live) support
+ * - Cache invalidation strategies
+ * - Memory pressure handling
+ */
+class CacheManager(private val context: Context) {
+    
+    companion object {
+        private const val TAG = "CacheManager"
+        private const val CACHE_DIR = "rustry_cache"
+        private const val DEFAULT_MEMORY_CACHE_SIZE = 50 // MB
+        private const val DEFAULT_DISK_CACHE_SIZE = 100 // MB
+        private const val DEFAULT_TTL_MS = 5 * 60 * 1000L // 5 minutes
+    }
+    
+    private val cacheMutex = Mutex()
+    private val json = Json { ignoreUnknownKeys = true }
+    
+    // Memory cache using LRU
+    private val memoryCache = LruCache<String, CacheEntry>(
+        (DEFAULT_MEMORY_CACHE_SIZE * 1024 * 1024) / 1000 // Approximate entry size
+    )
+    
+    // Disk cache directory
+    private val diskCacheDir = File(context.cacheDir, CACHE_DIR).apply {
+        if (!exists()) mkdirs()
+    }
+    
+    /**
+     * Cache entry with TTL support
+     */
+    @Serializable
+    data class CacheEntry(
+        val data: String,
+        val timestamp: Long,
+        val ttl: Long = DEFAULT_TTL_MS
+    ) {
+        fun isExpired(): Boolean = System.currentTimeMillis() - timestamp > ttl
+    }
+    
+    /**
+     * Put data in cache with TTL
+     */
+    suspend fun <T> put(key: String, data: T, ttlMs: Long = DEFAULT_TTL_MS) {
+        cacheMutex.withLock {
+            try {
+                val serializedData = json.encodeToString(data)
+                val cacheEntry = CacheEntry(serializedData, System.currentTimeMillis(), ttlMs)
+                
+                // Store in memory cache
+                memoryCache.put(key, cacheEntry)
+                
+                // Store in disk cache
+                val diskFile = File(diskCacheDir, key.hashCode().toString())
+                diskFile.writeText(json.encodeToString(cacheEntry))
+                
+                Log.d(TAG, "Cached data for key: $key")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to cache data for key: $key", e)
+            }
+        }
+    }
+    
+    /**
+     * Get data from cache
+     */
+    suspend inline fun <reified T> get(key: String): T? {
+        return cacheMutex.withLock {
+            try {
+                // Try memory cache first
+                var cacheEntry = memoryCache.get(key)
+                
+                // If not in memory, try disk cache
+                if (cacheEntry == null) {
+                    val diskFile = File(diskCacheDir, key.hashCode().toString())
+                    if (diskFile.exists()) {
+                        cacheEntry = json.decodeFromString<CacheEntry>(diskFile.readText())
+                        // Put back in memory cache
+                        memoryCache.put(key, cacheEntry)
+                    }
+                }
+                
+                // Check if entry exists and is not expired
+                if (cacheEntry != null && !cacheEntry.isExpired()) {
+                    json.decodeFromString<T>(cacheEntry.data)
+                } else {
+                    // Remove expired entry
+                    if (cacheEntry != null) {
+                        remove(key)
+                    }
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get cached data for key: $key", e)
+                null
+            }
+        }
+    }
+    
+    /**
+     * Check if key exists in cache and is not expired
+     */
+    suspend fun contains(key: String): Boolean {
+        return get<Any>(key) != null
+    }
+    
+    /**
+     * Remove specific key from cache
+     */
+    suspend fun remove(key: String) {
+        cacheMutex.withLock {
+            try {
+                // Remove from memory cache
+                memoryCache.remove(key)
+                
+                // Remove from disk cache
+                val diskFile = File(diskCacheDir, key.hashCode().toString())
+                if (diskFile.exists()) {
+                    diskFile.delete()
+                }
+                
+                Log.d(TAG, "Removed cached data for key: $key")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to remove cached data for key: $key", e)
+            }
+        }
+    }
+    
+    /**
+     * Clear all cache
+     */
+    suspend fun clearAll() {
+        cacheMutex.withLock {
+            try {
+                // Clear memory cache
+                memoryCache.evictAll()
+                
+                // Clear disk cache
+                diskCacheDir.listFiles()?.forEach { file ->
+                    file.delete()
+                }
+                
+                Log.d(TAG, "Cleared all cache")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to clear cache", e)
+            }
+        }
+    }
+    
+    /**
+     * Clear expired entries
+     */
+    suspend fun clearExpired() {
+        cacheMutex.withLock {
+            try {
+                val expiredKeys = mutableListOf<String>()
+                
+                // Check disk cache for expired entries
+                diskCacheDir.listFiles()?.forEach { file ->
+                    try {
+                        val cacheEntry = json.decodeFromString<CacheEntry>(file.readText())
+                        if (cacheEntry.isExpired()) {
+                            file.delete()
+                            expiredKeys.add(file.name)
+                        }
+                    } catch (e: Exception) {
+                        // Delete corrupted files
+                        file.delete()
+                    }
+                }
+                
+                // Remove expired entries from memory cache
+                // Note: LruCache doesn't provide iteration, so we rely on get() calls to clean up
+                
+                Log.d(TAG, "Cleared ${expiredKeys.size} expired cache entries")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to clear expired cache", e)
+            }
+        }
+    }
+    
+    /**
+     * Get cache statistics
+     */
+    suspend fun getStatistics(): CacheStatistics {
+        return cacheMutex.withLock {
+            try {
+                val memorySize = memoryCache.size()
+                val diskFiles = diskCacheDir.listFiles()?.size ?: 0
+                val diskSizeBytes = diskCacheDir.walkTopDown()
+                    .filter { it.isFile }
+                    .map { it.length() }
+                    .sum()
+                
+                CacheStatistics(
+                    memoryEntries = memorySize,
+                    diskEntries = diskFiles,
+                    diskSizeBytes = diskSizeBytes,
+                    diskSizeMB = diskSizeBytes / (1024.0 * 1024.0)
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get cache statistics", e)
+                CacheStatistics()
+            }
+        }
+    }
+    
+    /**
+     * Optimize cache based on memory pressure
+     */
+    suspend fun optimizeForMemoryPressure(level: MemoryPressureLevel) {
+        cacheMutex.withLock {
+            try {
+                when (level) {
+                    MemoryPressureLevel.LOW -> {
+                        // Clear expired entries only
+                        clearExpired()
+                    }
+                    MemoryPressureLevel.MEDIUM -> {
+                        // Clear expired entries and trim memory cache by 50%
+                        clearExpired()
+                        memoryCache.trimToSize(memoryCache.size() / 2)
+                    }
+                    MemoryPressureLevel.HIGH -> {
+                        // Clear all memory cache, keep only recent disk cache
+                        memoryCache.evictAll()
+                        clearOldDiskCache(1 * 60 * 1000L) // Keep only last 1 minute
+                    }
+                    MemoryPressureLevel.CRITICAL -> {
+                        // Clear everything
+                        clearAll()
+                    }
+                }
+                
+                Log.d(TAG, "Optimized cache for memory pressure level: $level")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to optimize cache for memory pressure", e)
+            }
+        }
+    }
+    
+    /**
+     * Clear old disk cache entries
+     */
+    private fun clearOldDiskCache(maxAgeMs: Long) {
+        val cutoffTime = System.currentTimeMillis() - maxAgeMs
+        
+        diskCacheDir.listFiles()?.forEach { file ->
+            try {
+                val cacheEntry = json.decodeFromString<CacheEntry>(file.readText())
+                if (cacheEntry.timestamp < cutoffTime) {
+                    file.delete()
+                }
+            } catch (e: Exception) {
+                // Delete corrupted files
+                file.delete()
+            }
+        }
+    }
+    
+    /**
+     * Get cache size in bytes
+     */
+    suspend fun getCacheSizeBytes(): Long {
+        return cacheMutex.withLock {
+            try {
+                diskCacheDir.walkTopDown()
+                    .filter { it.isFile }
+                    .map { it.length() }
+                    .sum()
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to calculate cache size", e)
+                0L
+            }
+        }
+    }
+    
+    /**
+     * Cleanup cache if it exceeds size limit
+     */
+    suspend fun cleanupIfNeeded() {
+        val currentSize = getCacheSizeBytes()
+        val maxSize = DEFAULT_DISK_CACHE_SIZE * 1024 * 1024L
+        
+        if (currentSize > maxSize) {
+            Log.d(TAG, "Cache size ($currentSize bytes) exceeds limit ($maxSize bytes), cleaning up")
+            
+            // Remove oldest entries until we're under the limit
+            val files = diskCacheDir.listFiles()?.sortedBy { it.lastModified() } ?: return
+            var sizeToRemove = currentSize - (maxSize * 0.8).toLong() // Remove to 80% of limit
+            
+            for (file in files) {
+                if (sizeToRemove <= 0) break
+                
+                sizeToRemove -= file.length()
+                file.delete()
+                
+                // Also remove from memory cache
+                memoryCache.remove(file.name)
+            }
+            
+            Log.d(TAG, "Cache cleanup completed")
+        }
+    }
+}
+
+/**
+ * Cache statistics data class
+ */
+data class CacheStatistics(
+    val memoryEntries: Int = 0,
+    val diskEntries: Int = 0,
+    val diskSizeBytes: Long = 0L,
+    val diskSizeMB: Double = 0.0
+)
+
+/**
+ * Memory pressure levels for cache optimization
+ */
+enum class MemoryPressureLevel {
+    LOW, MEDIUM, HIGH, CRITICAL
+}

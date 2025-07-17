@@ -6,15 +6,15 @@ import kotlinx.coroutines.tasks.await
 import com.rio.rustry.di.FirebaseModule
 
 class TransferRepository(
-    private val firestore: FirebaseFirestore = FirebaseModule.provideFirebaseFirestore()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     
     suspend fun createTransfer(transfer: OwnershipTransfer): Result<String> {
         return try {
             val docRef = firestore.collection("ownership_transfers").add(transfer).await()
-            Result.success(docRef.id)
+            Result.Success(docRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -27,12 +27,12 @@ class TransferRepository(
             
             val transfer = document.toObject(OwnershipTransfer::class.java)?.copy(id = document.id)
             if (transfer != null) {
-                Result.success(transfer)
+                Result.Success(transfer)
             } else {
-                Result.failure(Exception("Transfer not found"))
+                Result.Error(Exception("Transfer not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -50,9 +50,9 @@ class TransferRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -83,9 +83,9 @@ class TransferRepository(
                 .distinctBy { it.id }
                 .sortedByDescending { it.createdAt }
             
-            Result.success(allTransfers)
+            Result.Success(allTransfers)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -101,18 +101,18 @@ class TransferRepository(
                 doc.toObject(OwnershipTransfer::class.java)?.copy(id = doc.id)
             }
             
-            Result.success(transfers)
+            Result.Success(transfers)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
     suspend fun createDigitalCertificate(certificate: DigitalCertificate): Result<String> {
         return try {
             val docRef = firestore.collection("digital_certificates").add(certificate).await()
-            Result.success(docRef.id)
+            Result.Success(docRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -125,12 +125,12 @@ class TransferRepository(
             
             val certificate = document.toObject(DigitalCertificate::class.java)?.copy(id = document.id)
             if (certificate != null) {
-                Result.success(certificate)
+                Result.Success(certificate)
             } else {
-                Result.failure(Exception("Certificate not found"))
+                Result.Error(Exception("Certificate not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -146,18 +146,18 @@ class TransferRepository(
                 doc.toObject(DigitalCertificate::class.java)?.copy(id = doc.id)
             }
             
-            Result.success(certificates)
+            Result.Success(certificates)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
     suspend fun createTransferRequest(request: TransferRequest): Result<String> {
         return try {
             val docRef = firestore.collection("transfer_requests").add(request).await()
-            Result.success(docRef.id)
+            Result.Success(docRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -188,9 +188,9 @@ class TransferRepository(
                 .distinctBy { it.id }
                 .sortedByDescending { it.createdAt }
             
-            Result.success(allRequests)
+            Result.Success(allRequests)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -208,18 +208,18 @@ class TransferRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
     suspend fun createVerificationCode(code: VerificationCode): Result<String> {
         return try {
             val docRef = firestore.collection("verification_codes").add(code).await()
-            Result.success(docRef.id)
+            Result.Success(docRef.id)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -243,12 +243,12 @@ class TransferRepository(
                         )
                     )
                     .await()
-                Result.success(true)
+                Result.Success(true)
             } else {
-                Result.success(false)
+                Result.Success(false)
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -264,9 +264,9 @@ class TransferRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -278,12 +278,12 @@ class TransferRepository(
         return try {
             val certificate = getDigitalCertificate(certificateId).getOrNull()
             if (certificate != null && certificate.isValid) {
-                Result.success(true)
+                Result.Success(true)
             } else {
-                Result.success(false)
+                Result.Success(false)
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -314,12 +314,12 @@ class TransferRepository(
                     .document(transferId)
                     .update(updateMap)
                     .await()
-                Result.success(Unit)
+                Result.Success(Unit)
             } else {
-                Result.failure(Exception("Transfer not found"))
+                Result.Error(Exception("Transfer not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -335,9 +335,9 @@ class TransferRepository(
                     )
                 )
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -358,10 +358,10 @@ class TransferRepository(
                 )
                 createDigitalCertificate(certificate)
             } else {
-                Result.failure(Exception("Transfer not found"))
+                Result.Error(Exception("Transfer not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 }

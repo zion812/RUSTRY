@@ -59,7 +59,7 @@ fun BreedingAnalyticsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (uiState) {
+        when (val currentState = uiState) {
             is BreedingAnalyticsUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -80,12 +80,12 @@ fun BreedingAnalyticsScreen(
                         ) {
                             KpiCard(
                                 title = "Hatch Rate",
-                                value = "${uiState.analytics.hatchRate}%",
+                                value = "${currentState.analytics.hatchRate}%",
                                 modifier = Modifier.weight(1f)
                             )
                             KpiCard(
                                 title = "Mortality",
-                                value = "${uiState.analytics.mortalityRate}%",
+                                value = "${currentState.analytics.mortalityRate}%",
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -94,7 +94,7 @@ fun BreedingAnalyticsScreen(
                     item {
                         KpiCard(
                             title = "Avg Weight Gain",
-                            value = "${uiState.analytics.avgWeightGain}g",
+                            value = "${currentState.analytics.avgWeightGain}g",
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -127,7 +127,7 @@ fun BreedingAnalyticsScreen(
                                         }
                                     },
                                     update = { chart ->
-                                        val entries = uiState.analytics.trendData.mapIndexed { index, value ->
+                                        val entries = currentState.analytics.trendData.mapIndexed { index, value ->
                                             Entry(index.toFloat(), value.toFloat())
                                         }
                                         
@@ -156,7 +156,7 @@ fun BreedingAnalyticsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = uiState.message,
+                        text = currentState.message,
                         color = MaterialTheme.colorScheme.error
                     )
                 }

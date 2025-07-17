@@ -47,9 +47,9 @@ class ListingRepository @Inject constructor(
             
             firestore.collection("fowls").document(fowlId).set(fowl).await()
             
-            Result.success(fowlId)
+            Result.Success(fowlId)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -75,9 +75,9 @@ class ListingRepository @Inject constructor(
                 .update(updates)
                 .await()
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -96,9 +96,9 @@ class ListingRepository @Inject constructor(
                 )
                 .await()
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -118,9 +118,9 @@ class ListingRepository @Inject constructor(
                 doc.toObject(Fowl::class.java)?.copy(id = doc.id)
             }
             
-            emit(Result.success(fowls))
+            emit(Result.Success(fowls))
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            emit(Result.Error(e))
         }
     }
 

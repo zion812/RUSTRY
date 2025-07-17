@@ -41,9 +41,9 @@ class OrderRepository @Inject constructor(
             
             cartDao.insertCartItem(cartItem)
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -51,9 +51,9 @@ class OrderRepository @Inject constructor(
         try {
             val currentUser = auth.currentUser ?: throw Exception("User not authenticated")
             val items = cartDao.getCartItems(currentUser.uid)
-            emit(Result.success(items))
+            emit(Result.Success(items))
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            emit(Result.Error(e))
         }
     }
 
@@ -61,9 +61,9 @@ class OrderRepository @Inject constructor(
         return try {
             val currentUser = auth.currentUser ?: throw Exception("User not authenticated")
             cartDao.updateQuantity(fowlId, currentUser.uid, quantity)
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -71,9 +71,9 @@ class OrderRepository @Inject constructor(
         return try {
             val currentUser = auth.currentUser ?: throw Exception("User not authenticated")
             cartDao.removeCartItem(fowlId, currentUser.uid)
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -136,9 +136,9 @@ class OrderRepository @Inject constructor(
             // Clear cart
             cartDao.clearCart(currentUser.uid)
             
-            Result.success(orderId)
+            Result.Success(orderId)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -156,9 +156,9 @@ class OrderRepository @Inject constructor(
                 doc.toObject(Order::class.java)?.copy(id = doc.id)
             }
             
-            emit(Result.success(orders))
+            emit(Result.Success(orders))
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            emit(Result.Error(e))
         }
     }
 }

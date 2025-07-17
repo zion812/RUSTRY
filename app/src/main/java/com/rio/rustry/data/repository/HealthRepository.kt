@@ -17,7 +17,7 @@ class HealthRepository(
     fun getHealthRecords(fowlId: String): Flow<List<HealthRecord>> = callbackFlow {
         val listener = healthRecordsCollection
             .whereEqualTo("fowlId", fowlId)
-            .orderBy("date", Query.Direction.DESCENDING)
+            .orderBy("recordDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
@@ -41,17 +41,16 @@ class HealthRepository(
     suspend fun addHealthRecord(record: HealthRecord) {
         val recordMap = mapOf(
             "fowlId" to record.fowlId,
-            "type" to record.type,
-            "description" to record.description,
-            "date" to record.date,
-            "veterinarian" to record.veterinarian,
-            "status" to record.status,
-            "medication" to record.medication,
-            "dosage" to record.dosage,
+            "recordType" to record.recordType,
             "notes" to record.notes,
-            "cost" to record.cost,
-            "attachments" to record.attachments,
-            "nextAppointment" to record.nextAppointment,
+            "recordDate" to record.recordDate,
+            "veterinarianId" to record.veterinarianId,
+            "status" to record.status,
+            "medications" to record.medications,
+            "dosageInstructions" to record.dosageInstructions,
+            "totalCost" to record.totalCost,
+            "images" to record.images,
+            "nextCheckupDate" to record.nextCheckupDate,
             "createdAt" to record.createdAt,
             "updatedAt" to record.updatedAt
         )
@@ -66,17 +65,16 @@ class HealthRepository(
     suspend fun updateHealthRecord(record: HealthRecord) {
         val recordMap = mapOf(
             "fowlId" to record.fowlId,
-            "type" to record.type,
-            "description" to record.description,
-            "date" to record.date,
-            "veterinarian" to record.veterinarian,
-            "status" to record.status,
-            "medication" to record.medication,
-            "dosage" to record.dosage,
+            "recordType" to record.recordType,
             "notes" to record.notes,
-            "cost" to record.cost,
-            "attachments" to record.attachments,
-            "nextAppointment" to record.nextAppointment,
+            "recordDate" to record.recordDate,
+            "veterinarianId" to record.veterinarianId,
+            "status" to record.status,
+            "medications" to record.medications,
+            "dosageInstructions" to record.dosageInstructions,
+            "totalCost" to record.totalCost,
+            "images" to record.images,
+            "nextCheckupDate" to record.nextCheckupDate,
             "updatedAt" to Date()
         )
         
@@ -100,8 +98,8 @@ class HealthRepository(
         return try {
             val snapshot = healthRecordsCollection
                 .whereEqualTo("fowlId", fowlId)
-                .whereEqualTo("type", type)
-                .orderBy("date", Query.Direction.DESCENDING)
+                .whereEqualTo("recordType", type)
+                .orderBy("recordDate", Query.Direction.DESCENDING)
                 .get()
                 .await()
             
@@ -118,8 +116,8 @@ class HealthRepository(
             val currentDate = Date()
             val snapshot = healthRecordsCollection
                 .whereEqualTo("fowlId", fowlId)
-                .whereGreaterThan("nextAppointment", currentDate)
-                .orderBy("nextAppointment", Query.Direction.ASCENDING)
+                .whereGreaterThan("nextCheckupDate", currentDate)
+                .orderBy("nextCheckupDate", Query.Direction.ASCENDING)
                 .get()
                 .await()
             

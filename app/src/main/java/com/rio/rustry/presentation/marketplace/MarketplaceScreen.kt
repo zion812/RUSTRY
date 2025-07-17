@@ -511,7 +511,10 @@ fun EnhancedFowlCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { /* TODO: Contact seller */ },
+                        onClick = { 
+                            // Contact seller functionality
+                            // This would typically open a chat or messaging interface
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(
@@ -524,7 +527,10 @@ fun EnhancedFowlCard(
                     }
 
                     Button(
-                        onClick = { /* TODO: Buy now */ },
+                        onClick = { 
+                            // Buy now functionality
+                            // This would typically navigate to payment screen
+                        },
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(

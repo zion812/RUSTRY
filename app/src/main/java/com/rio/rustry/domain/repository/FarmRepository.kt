@@ -1,6 +1,7 @@
 package com.rio.rustry.domain.repository
 
 import com.rio.rustry.domain.model.*
+import com.rio.rustry.data.model.HealthRecord
 import kotlinx.coroutines.flow.Flow
 
 /**

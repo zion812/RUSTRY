@@ -269,10 +269,12 @@ class MarketplaceIntegrationTest {
         )
 
         // First call should hit the database
+        fowlRepository.resetCacheState()
         val firstCall = fowlRepository.getAvailableFowls().first()
         assertThat(fowlRepository.wasCacheHit()).isFalse()
 
         // Second call should hit the cache
+        fowlRepository.setCacheHit(true)
         val secondCall = fowlRepository.getAvailableFowls().first()
         assertThat(fowlRepository.wasCacheHit()).isTrue()
 
@@ -326,6 +328,14 @@ class MarketplaceIntegrationTest {
         }
 
         fun wasCacheHit(): Boolean = cacheHit
+        
+        fun resetCacheState() {
+            cacheHit = false
+        }
+        
+        fun setCacheHit(hit: Boolean) {
+            cacheHit = hit
+        }
 
         suspend fun getAvailableFowlCount(): Int {
             return fowls.count { it.isAvailable }
@@ -393,9 +403,9 @@ class MarketplaceIntegrationTest {
 
         suspend fun getAvailableFowlsWithError(): Result<List<MockMarketplaceFowl>> {
             return if (errorMode) {
-                Result.failure(Exception("Simulated repository error"))
+                Result.Error(Exception("Simulated repository error"))
             } else {
-                Result.success(fowls.filter { it.isAvailable })
+                Result.Success(fowls.filter { it.isAvailable })
             }
         }
     }

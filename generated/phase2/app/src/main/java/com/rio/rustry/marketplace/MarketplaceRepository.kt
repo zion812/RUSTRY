@@ -31,7 +31,7 @@ class MarketplaceRepository @Inject constructor(
             )
             
             if (cachedResults.isNotEmpty()) {
-                emit(Result.success(cachedResults))
+                emit(Result.Success(cachedResults))
             }
 
             // Fetch from Firestore
@@ -77,9 +77,9 @@ class MarketplaceRepository @Inject constructor(
             // Cache results
             fowlDao.insertFowls(fowls)
             
-            emit(Result.success(fowls))
+            emit(Result.Success(fowls))
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            emit(Result.Error(e))
         }
     }
 
@@ -89,7 +89,7 @@ class MarketplaceRepository @Inject constructor(
             val cachedFowl = fowlDao.getFowlById(fowlId)
             if (cachedFowl != null) {
                 val lineage = getLineage(cachedFowl)
-                emit(Result.success(FowlDetail(cachedFowl, lineage)))
+                emit(Result.Success(FowlDetail(cachedFowl, lineage)))
             }
 
             // Fetch from Firestore
@@ -102,9 +102,9 @@ class MarketplaceRepository @Inject constructor(
             // Cache the fowl
             fowlDao.insertFowl(fowl)
             
-            emit(Result.success(FowlDetail(fowl, lineage)))
+            emit(Result.Success(FowlDetail(fowl, lineage)))
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            emit(Result.Error(e))
         }
     }
 

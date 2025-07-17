@@ -62,7 +62,7 @@ fun VaccinationSchedulerScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (uiState) {
+        when (val state = uiState) {
             is BreedingUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -72,7 +72,7 @@ fun VaccinationSchedulerScreen(
                 }
             }
             is BreedingUiState.VaccinationScheduleLoaded -> {
-                if (uiState.events.isEmpty()) {
+                if (state.events.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -98,7 +98,7 @@ fun VaccinationSchedulerScreen(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(uiState.events) { event ->
+                        items(state.events) { event ->
                             VaccinationEventCard(
                                 event = event,
                                 onEdit = { editingEvent = event },
@@ -115,7 +115,7 @@ fun VaccinationSchedulerScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = uiState.message,
+                        text = state.message,
                         color = MaterialTheme.colorScheme.error
                     )
                 }

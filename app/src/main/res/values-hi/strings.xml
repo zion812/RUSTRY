@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">रस्त्री</string>
+    
+    <!-- Common -->
+    <string name="ok">ठीक है</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="retry">पुनः प्रयास करें</string>
+    <string name="loading">लोड हो रहा है...</string>
+    <string name="error">त्रुटि</string>
+    <string name="success">सफलता</string>
+    <string name="save">सहेजें</string>
+    <string name="delete">हटाएं</string>
+    <string name="edit">संपादित करें</string>
+    <string name="create">बनाएं</string>
+    <string name="update">अपडेट करें</string>
+    <string name="back">वापस</string>
+    <string name="next">अगला</string>
+    <string name="previous">पिछला</string>
+    <string name="close">बंद करें</string>
+    
+    <!-- Navigation -->
+    <string name="home">होम</string>
+    <string name="marketplace">बाज़ार</string>
+    <string name="breeding">प्रजनन</string>
+    <string name="health">स्वास्थ्य</string>
+    <string name="social">सामाजिक</string>
+    <string name="profile">प्रोफ़ाइल</string>
+    <string name="settings">सेटिंग्स</string>
+    
+    <!-- Transfers -->
+    <string name="transfers_title">स्थानांतरण</string>
+    <string name="create_transfer">स्थानांतरण बनाएं</string>
+    <string name="create_first_transfer">पहला स्थानांतरण बनाएं</string>
+    <string name="no_transfers_message">अभी तक कोई स्थानांतरण नहीं। शुरू करने के लिए अपना पहला स्थानांतरण बनाएं।</string>
+    <string name="fowl_id">मुर्गी ID</string>
+    <string name="buyer_id">खरीदार ID</string>
+    <string name="seller_id">विक्रेता ID</string>
+    <string name="price">कीमत</string>
+    <string name="notes_optional">टिप्पणियां (वैकल्पिक)</string>
+    <string name="transfer_status">स्थानांतरण स्थिति</string>
+    <string name="verify_transfer">स्थानांतरण सत्यापित करें</string>
+    <string name="cancel_transfer">स्थानांतरण रद्द करें</string>
+    <string name="transfer_details">स्थानांतरण विवरण</string>
+    <string name="verification_notes">सत्यापन टिप्पणियां</string>
+    <string name="submit_verification">सत्यापन जमा करें</string>
+    <string name="transfer_created">स्थानांतरण सफलतापूर्वक बनाया गया</string>
+    <string name="transfer_cancelled">स्थानांतरण सफलतापूर्वक रद्द किया गया</string>
+    <string name="verification_submitted">सत्यापन सफलतापूर्वक जमा किया गया</string>
+    
+    <!-- Transfer Status -->
+    <string name="status_pending">लंबित</string>
+    <string name="status_pending_verification">सत्यापन लंबित</string>
+    <string name="status_completed">पूर्ण</string>
+    <string name="status_cancelled">रद्द</string>
+    <string name="status_disputed">विवादित</string>
+    
+    <!-- Breeding & Lifecycle -->
+    <string name="breeding_title">प्रजनन प्रबंधन</string>
+    <string name="lifecycle_tracking">जीवनचक्र ट्रैकिंग</string>
+    <string name="add_record">रिकॉर्ड जोड़ें</string>
+    <string name="record_type">रिकॉर्ड प्रकार</string>
+    <string name="record_date">रिकॉर्ड दिनांक</string>
+    <string name="record_description">विवरण</string>
+    <string name="record_notes">टिप्पणियां</string>
+    <string name="breeder_status">प्रजनक स्थिति</string>
+    <string name="mark_as_breeder">प्रजनक के रूप में चिह्नित करें</string>
+    <string name="mortality_record">मृत्यु रिकॉर्ड</string>
+    <string name="cause_of_death">मृत्यु का कारण</string>
+    <string name="mortality_date">मृत्यु दिनांक</string>
+    <string name="health_status">स्वास्थ्य स्थिति</string>
+    <string name="vaccination_schedule">टीकाकरण अनुसूची</string>
+    <string name="family_tree">पारिवारिक वृक्ष</string>
+    <string name="export_tree">वृक्ष निर्यात करें</string>
+    
+    <!-- AI & Image Analysis -->
+    <string name="ai_analysis">AI विश्लेषण</string>
+    <string name="image_analysis">छवि विश्लेषण</string>
+    <string name="select_image">छवि चुनें</string>
+    <string name="camera">कैमरा</string>
+    <string name="gallery">गैलरी</string>
+    <string name="analyzing_image">AI के साथ छवि का विश्लेषण कर रहा है...</string>
+    <string name="analysis_complete">विश्लेषण पूर्ण</string>
+    <string name="confidence">विश्वास</string>
+    <string name="detected_objects">पहचानी गई वस्तुएं</string>
+    <string name="image_quality">छवि गुणवत्ता</string>
+    <string name="ai_recommendations">AI सिफारिशें</string>
+    <string name="breed_detection">नस्ल पहचान</string>
+    <string name="health_assessment">स्वास्थ्य मूल्यांकन</string>
+    <string name="disease_detection">रोग पहचान</string>
+    <string name="proof_verification">प्रमाण सत्यापन</string>
+    <string name="verify_proof_upload">प्रमाण अपलोड सत्यापित करें</string>
+    <string name="expected_color">अपेक्षित रंग</string>
+    <string name="expected_age">अपेक्षित आयु (महीने)</string>
+    <string name="expected_price">अपेक्षित कीमत</string>
+    <string name="verify_with_ai">AI के साथ सत्यापित करें</string>
+    <string name="verification_successful">सत्यापन सफल</string>
+    <string name="verification_failed">सत्यापन असफल</string>
+</resources>

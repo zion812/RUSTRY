@@ -1,17 +1,23 @@
 package com.rio.rustry.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import java.util.*
 
 /**
  * Fowl domain model
  */
+@Entity(tableName = "fowls")
 data class Fowl(
+    @PrimaryKey
     val id: String = "",
     val ownerId: String = "",
     val ownerName: String = "",
     val name: String = "",
     val breed: String = "",
     val age: Int = 0,
+    val ageMonths: Int = 0, // Age in months for more precise tracking
     val price: Double = 0.0,
     val description: String = "",
     val imageUrls: List<String> = emptyList(),
@@ -38,5 +44,9 @@ data class Fowl(
     val parentIds: List<String> = emptyList(),
     val proofImageUrls: List<String> = emptyList(),
     val isAvailable: Boolean = true,
-    val boostExpiry: Long? = null
+    val boostExpiry: Long? = null,
+    
+    // Sync status for offline support
+    val isSynced: Boolean = true,
+    val needsSync: Boolean = false
 )

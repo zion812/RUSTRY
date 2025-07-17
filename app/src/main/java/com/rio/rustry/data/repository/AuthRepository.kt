@@ -10,7 +10,7 @@ import com.rio.rustry.di.FirebaseModule
 
 class AuthRepository(
     private val auth: FirebaseAuth = FirebaseModule.provideFirebaseAuth(),
-    private val firestore: FirebaseFirestore = FirebaseModule.provideFirebaseFirestore()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     
     fun getCurrentUser(): FirebaseUser? = auth.currentUser
@@ -18,9 +18,9 @@ class AuthRepository(
     suspend fun signInWithEmail(email: String, password: String): Result<FirebaseUser> {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password).await()
-            Result.success(result.user!!)
+            Result.Success(result.user!!)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -39,11 +39,12 @@ class AuthRepository(
             // Create user profile in Firestore
             val userProfile = User(
                 id = user.uid,
-                name = name,
+                displayName = name,
                 email = email,
-                phone = phone,
-                location = location,
-                userType = userType
+                phoneNumber = phone,
+                farmLocation = location,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis()
             )
             
             firestore.collection("users")
@@ -51,9 +52,9 @@ class AuthRepository(
                 .set(userProfile)
                 .await()
             
-            Result.success(user)
+            Result.Success(user)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -66,12 +67,12 @@ class AuthRepository(
             
             val user = document.toObject(User::class.java)
             if (user != null) {
-                Result.success(user)
+                Result.Success(user)
             } else {
-                Result.failure(Exception("User not found"))
+                Result.Error(Exception("User not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -81,9 +82,9 @@ class AuthRepository(
                 .document(user.id)
                 .set(user)
                 .await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -100,15 +101,15 @@ class AuthRepository(
                 val document = querySnapshot.documents.first()
                 val user = document.toObject(User::class.java)
                 if (user != null) {
-                    Result.success(user)
+                    Result.Success(user)
                 } else {
-                    Result.failure(Exception("User not found"))
+                    Result.Error(Exception("User not found"))
                 }
             } else {
-                Result.failure(Exception("User not found"))
+                Result.Error(Exception("User not found"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     

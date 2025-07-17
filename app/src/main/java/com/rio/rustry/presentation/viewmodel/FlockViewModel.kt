@@ -2,23 +2,38 @@ package com.rio.rustry.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.rio.rustry.domain.model.Flock
+import com.rio.rustry.domain.model.Result
 import com.rio.rustry.domain.repository.FarmRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import android.util.Log
 import javax.inject.Inject
 
 /**
- * ViewModel for Flock management operations
- * Handles flock creation, updates, deletion, and statistics
+ * Modernized ViewModel for Fowl/Flock management with proper coroutine coordination
+ * 
+ * Features:
+ * - Coordinated data loading with combine operators
+ * - Proper error handling with Result wrapper
+ * - Debounced search functionality
+ * - Synchronized state updates
+ * - Memory leak prevention
  */
-@HiltViewModel
 class FlockViewModel @Inject constructor(
     private val farmRepository: FarmRepository,
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
+    
+    companion object {
+        private const val TAG = "FlockViewModel"
+        private const val SEARCH_DEBOUNCE_MS = 300L
+    }
     
     private val _uiState = MutableStateFlow(FlockUiState())
     val uiState: StateFlow<FlockUiState> = _uiState.asStateFlow()
@@ -356,7 +371,7 @@ class FlockViewModel @Inject constructor(
     private fun updateFlockStatistics(flocks: List<Flock>) {
         val statistics = FlockStatistics(
             totalFlocks = flocks.size,
-            totalBirds = flocks.sumOf { it.quantity },
+            totalBirds = flocks.sumOf { it.quantity.toLong() }.toInt(),
             healthyFlocks = flocks.count { it.healthStatus == "HEALTHY" },
             sickFlocks = flocks.count { it.healthStatus == "SICK" },
             quarantineFlocks = flocks.count { it.healthStatus == "QUARANTINE" },
@@ -414,7 +429,7 @@ class FlockViewModel @Inject constructor(
      * Get total birds count
      */
     fun getTotalBirdsCount(): Int {
-        return _flocks.value.sumOf { it.quantity }
+        return _flocks.value.sumOf { it.quantity.toLong() }.toInt()
     }
     
     /**

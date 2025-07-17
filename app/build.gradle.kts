@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
     // Temporarily disable Hilt for release build
     // alias(libs.plugins.hilt.android)
-    // kotlin("kapt")
+    kotlin("kapt")
 }
 
 android {
@@ -16,9 +16,10 @@ android {
     defaultConfig {
         applicationId = "com.rio.rustry"
         minSdk = 23
+        multiDexEnabled = true
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.0-phase3"
+        versionCode = 4
+        versionName = "1.0.1-phase3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -113,9 +114,9 @@ android {
     }
 }
 
-// kapt {
-//     correctErrorTypes = true
-// }
+kapt {
+    correctErrorTypes = true
+}
 
 dependencies {
     // Core Android dependencies
@@ -143,6 +144,8 @@ dependencies {
     implementation("com.google.firebase:firebase-perf-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.google.firebase:firebase-config-ktx")  // For feature flags
+    implementation("com.google.firebase:firebase-database-ktx")  // Missing dependency
+    implementation("com.google.firebase:firebase-functions-ktx")  // Missing dependency
     implementation(libs.firebase.crashlytics)
     
     // Coroutines (latest versions)
@@ -186,8 +189,8 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.room:room-paging:2.6.1")
-    // Room annotation processor (required for Room to generate code) - TEMPORARILY DISABLED
-    // kapt("androidx.room:room-compiler:2.6.1")
+    // Room annotation processor (required for Room to generate code)
+    kapt("androidx.room:room-compiler:2.6.1")
     
     // WorkManager for sync
     implementation("androidx.work:work-runtime-ktx:2.9.0")
@@ -259,6 +262,15 @@ dependencies {
     testImplementation("com.google.truth:truth:1.1.4")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("androidx.room:room-testing:2.6.1")
+    
+    // Koin testing
+    testImplementation("io.insert-koin:koin-test:3.5.6")
+    testImplementation("io.insert-koin:koin-test-junit4:3.5.6")
+    
+    // Mockito for testing
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
     
     // Android testing
     androidTestImplementation(libs.androidx.junit)

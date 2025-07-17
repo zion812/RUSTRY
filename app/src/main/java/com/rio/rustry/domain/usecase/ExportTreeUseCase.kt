@@ -8,7 +8,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import com.rio.rustry.analytics.AnalyticsService
-import com.rio.rustry.breeding.FamilyTree
+import com.rio.rustry.domain.model.FamilyTree
+import com.rio.rustry.domain.model.FamilyTreeNode
+import com.rio.rustry.domain.model.FamilyRelationship
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
@@ -28,7 +30,7 @@ class ExportTreeUseCase @Inject constructor(
         }
         
         analyticsService.logTreeExported(
-            fowlId = familyTree.nodes.firstOrNull()?.id ?: "",
+            fowlId = familyTree.nodes.firstOrNull()?.birdId ?: "",
             exportFormat = "png"
         )
         
@@ -53,7 +55,7 @@ class ExportTreeUseCase @Inject constructor(
         pdfDocument.close()
         
         analyticsService.logTreeExported(
-            fowlId = familyTree.nodes.firstOrNull()?.id ?: "",
+            fowlId = familyTree.nodes.firstOrNull()?.birdId ?: "",
             exportFormat = "pdf"
         )
         
@@ -74,10 +76,19 @@ class ExportTreeUseCase @Inject constructor(
             textSize = 24f
         }
         
+        // Calculate positions
+        val positionMap = mutableMapOf<String, Pair<Float, Float>>()
+        familyTree.nodes.groupBy { it.generation }.forEach { (gen, nodesInGen) ->
+            nodesInGen.forEachIndexed { index, node ->
+                val x = 100f + (index.toFloat() * 200f)
+                val y = 100f + (gen * 150f)
+                positionMap[node.birdId] = x to y
+            }
+        }
+        
         // Draw tree structure
         familyTree.nodes.forEach { node ->
-            val x = 100f + (node.position * 200f)
-            val y = 100f + (node.generation * 150f)
+            val (x, y) = positionMap[node.birdId] ?: (0f to 0f)
             
             // Draw node circle
             paint.color = android.graphics.Color.BLUE
@@ -89,23 +100,19 @@ class ExportTreeUseCase @Inject constructor(
         }
         
         // Draw connections
-        familyTree.connections.forEach { connection ->
-            val fromNode = familyTree.nodes.find { it.id == connection.fromId }
-            val toNode = familyTree.nodes.find { it.id == connection.toId }
+        familyTree.relationships.forEach { connection ->
+            val fromPos = positionMap[connection.parentId]
+            val toPos = positionMap[connection.childId]
             
-            if (fromNode != null && toNode != null) {
-                val fromX = 100f + (fromNode.position * 200f)
-                val fromY = 100f + (fromNode.generation * 150f)
-                val toX = 100f + (toNode.position * 200f)
-                val toY = 100f + (toNode.generation * 150f)
-                
+            if (fromPos != null && toPos != null) {
                 paint.color = android.graphics.Color.GRAY
                 paint.strokeWidth = 3f
-                canvas.drawLine(fromX, fromY, toX, toY, paint)
+                canvas.drawLine(fromPos.first, fromPos.second, toPos.first, toPos.second, paint)
             }
         }
     }
     
+    @Suppress("UNUSED_PARAMETER")
     private fun shareFile(file: File) {
         // Implementation for sharing file using Android's share intent
         // This would typically use FileProvider and Intent.ACTION_SEND

@@ -29,7 +29,7 @@ class SocialRepository @Inject constructor(
     fun getChatMessages(chatId: String): Flow<Result<List<ChatMessage>>> = callbackFlow {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            trySend(Result.failure(Exception("User not authenticated")))
+            trySend(Result.Error(Exception("User not authenticated")))
             close()
             return@callbackFlow
         }
@@ -37,7 +37,7 @@ class SocialRepository @Inject constructor(
         // Load cached messages first
         val cachedMessages = chatMessageDao.getMessagesForChat(chatId)
         if (cachedMessages.isNotEmpty()) {
-            trySend(Result.success(cachedMessages))
+            trySend(Result.Success(cachedMessages))
         }
 
         val listener = firestore.collection("chats")
@@ -46,7 +46,7 @@ class SocialRepository @Inject constructor(
             .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    trySend(Result.failure(error))
+                    trySend(Result.Error(error))
                     return@addSnapshotListener
                 }
 
@@ -58,7 +58,7 @@ class SocialRepository @Inject constructor(
                     // Cache messages
                     chatMessageDao.insertMessages(messages)
                     
-                    trySend(Result.success(messages))
+                    trySend(Result.Success(messages))
                 }
             }
 
@@ -84,9 +84,9 @@ class SocialRepository @Inject constructor(
                 .set(message)
                 .await()
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -126,9 +126,9 @@ class SocialRepository @Inject constructor(
                 ))
             }.await()
             
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 
@@ -158,9 +158,9 @@ class SocialRepository @Inject constructor(
             
             firestore.collection("posts").document(postId).set(post).await()
             
-            Result.success(postId)
+            Result.Success(postId)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(e)
         }
     }
 

@@ -1,153 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Name -->
-    <string name="app_name">రస్ట్రీ</string>
-    <string name="app_tagline">రైతులను కలుపుతూ, నమ్మకాన్ని నిర్మిస్తూ</string>
+    <string name="app_name">రస్త్రీ</string>
     
-    <!-- Authentication -->
-    <string name="auth_title">రస్ట్రీకి స్వాగతం</string>
-    <string name="auth_subtitle">మీ నమ్మకమైన కోడిపెట్టల మార్కెట్</string>
-    <string name="phone_number">ఫోన్ నంబర్</string>
-    <string name="enter_phone_number">మీ ఫోన్ నంబర్ ఎంటర్ చేయండి</string>
-    <string name="send_otp">OTP పంపండి</string>
-    <string name="verify_otp">OTP వెరిఫై చేయండి</string>
-    <string name="enter_otp">OTP ఎంటర్ చేయండి</string>
-    <string name="resend_otp">OTP మళ్లీ పంపండి</string>
-    <string name="login_success">లాగిన్ విజయవంతం</string>
-    <string name="demo_mode">డెమో మోడ్</string>
-    <string name="demo_login">డెమో లాగిన్</string>
-    
-    <!-- Navigation -->
-    <string name="marketplace">మార్కెట్ ప్లేస్</string>
-    <string name="my_fowls">నా కోళ్లు</string>
-    <string name="profile">ప్రొఫైల్</string>
-    <string name="home">హోమ్</string>
-    <string name="search">వెతకండి</string>
-    <string name="notifications">నోటిఫికేషన్లు</string>
-    
-    <!-- Marketplace -->
-    <string name="available_fowls">అందుబాటులో ఉన్న కోళ్లు</string>
-    <string name="no_fowls_available">కోళ్లు అందుబాటులో లేవు</string>
-    <string name="buy_now">ఇప్పుడే కొనండి</string>
-    <string name="add_to_cart">కార్ట్‌కు జోడించండి</string>
-    <string name="price">ధర</string>
-    <string name="age">వయస్సు</string>
-    <string name="location">స్థానం</string>
-    <string name="breed">జాతి</string>
-    <string name="description">వివరణ</string>
-    <string name="months">నెలలు</string>
-    <string name="years">సంవత్సరాలు</string>
-    
-    <!-- My Fowls -->
-    <string name="no_fowls_added">ఇంకా కోళ్లు జోడించలేదు</string>
-    <string name="add_your_first_fowl">మీ మొదటి కోడిని జోడించండి</string>
-    <string name="add_fowl">కోడిని జోడించండి</string>
-    <string name="add_new_fowl">కొత్త కోడిని జోడించండి</string>
-    <string name="for_sale">అమ్మకానికి</string>
-    <string name="list_for_sale">అమ్మకానికి లిస్ట్ చేయండి</string>
-    <string name="my_farm">నా పొలం</string>
-    
-    <!-- Profile -->
-    <string name="demo_farmer">డెమో రైతు</string>
-    <string name="my_listings">నా లిస్టింగ్‌లు</string>
-    <string name="transaction_history">లావాదేవీల చరిత్ర</string>
-    <string name="settings">సెట్టింగ్‌లు</string>
-    <string name="help_support">సహాయం &amp; మద్దతు</string>
-    <string name="about">గురించి</string>
-    <string name="logout">లాగ్ అవుట్</string>
-    
-    <!-- Common Actions -->
-    <string name="add">జోడించండి</string>
-    <string name="cancel">రద్దు చేయండి</string>
-    <string name="save">సేవ్ చేయండి</string>
-    <string name="edit">ఎడిట్ చేయండి</string>
-    <string name="delete">తొలగించండి</string>
-    <string name="share">షేర్ చేయండి</string>
+    <!-- Common -->
+    <string name="ok">సరే</string>
+    <string name="cancel">రద్దు చేయి</string>
+    <string name="retry">మళ్లీ ప్రయత్నించు</string>
+    <string name="loading">లోడ్ అవుతోంది...</string>
+    <string name="error">లోపం</string>
+    <string name="success">విజయం</string>
+    <string name="save">సేవ్ చేయి</string>
+    <string name="delete">తొలగించు</string>
+    <string name="edit">సవరించు</string>
+    <string name="create">సృష్టించు</string>
+    <string name="update">అప్‌డేట్ చేయి</string>
     <string name="back">వెనుకకు</string>
     <string name="next">తదుపరి</string>
-    <string name="done">పూర్తయింది</string>
-    <string name="ok">సరే</string>
-    <string name="yes">అవును</string>
-    <string name="no">లేదు</string>
+    <string name="previous">మునుపటి</string>
+    <string name="close">మూసివేయి</string>
     
-    <!-- Error Messages -->
-    <string name="error_network">నెట్‌వర్క్ లోప���. దయచేసి మీ కనెక్షన్ చెక్ చేయండి.</string>
-    <string name="error_generic">ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.</string>
-    <string name="error_invalid_phone">దయచేసి చెల్లుబాటు అయ్యే ఫోన్ నంబర్ ఎంటర్ చేయండి</string>
-    <string name="error_invalid_otp">చెల్లని OTP. దయచేసి మళ్లీ ప్రయత్నించండి.</string>
-    <string name="demo_mode_message">డెమో మోడ్: నమూనా డేటా ఉపయోగిస్తున్నాం</string>
-    <string name="failed_to_load">లోడ్ చేయడంలో విఫలమైంది</string>
+    <!-- Navigation -->
+    <string name="home">హోమ్</string>
+    <string name="marketplace">మార్కెట్‌ప్లేస్</string>
+    <string name="breeding">పెంపకం</string>
+    <string name="health">ఆరోగ్యం</string>
+    <string name="social">సామాజిక</string>
+    <string name="profile">ప్రొఫైల్</string>
+    <string name="settings">సెట్టింగ్స్</string>
     
-    <!-- Success Messages -->
-    <string name="fowl_added_successfully">కోడి విజయవంతంగా జోడించబడింది</string>
-    <string name="profile_updated">ప్రొఫైల్ విజయవంతంగా అప్‌డేట్ చేయబడింది</string>
-    <string name="order_placed">ఆర్డర్ విజయవంతంగా ప్లేస్ చేయబడింది</string>
+    <!-- Transfers -->
+    <string name="transfers_title">బదిలీలు</string>
+    <string name="create_transfer">బదిలీ సృష్టించు</string>
+    <string name="create_first_transfer">మొదటి బదిలీ సృష్టించు</string>
+    <string name="no_transfers_message">ఇంకా బదిలీలు లేవు. ప్రారంభించడానికి మీ మొదటి బదిలీని సృష్టించండి.</string>
+    <string name="fowl_id">కోడి ID</string>
+    <string name="buyer_id">కొనుగోలుదారు ID</string>
+    <string name="seller_id">అమ్మకందారు ID</string>
+    <string name="price">ధర</string>
+    <string name="notes_optional">గమనికలు (ఐచ్ఛికం)</string>
+    <string name="transfer_status">బదిలీ స్థితి</string>
+    <string name="verify_transfer">బదిలీని ధృవీకరించు</string>
+    <string name="cancel_transfer">బదిలీని రద్దు చేయి</string>
+    <string name="transfer_details">బదిలీ వివరాలు</string>
+    <string name="verification_notes">ధృవీకరణ గమనికలు</string>
+    <string name="submit_verification">ధృవీకరణ సమర్పించు</string>
+    <string name="transfer_created">బదిలీ విజయవంతంగా సృష్టించబడింది</string>
+    <string name="transfer_cancelled">బదిలీ విజయవంతంగా రద్దు చేయబడింది</string>
+    <string name="verification_submitted">ధృవీకరణ విజయవంతంగా సమర్పించబడింది</string>
     
-    <!-- Fowl Breeds -->
-    <string name="desi_hen">దేశీ కోడి</string>
-    <string name="country_rooster">దేశీ కోడిపుంజు</string>
-    <string name="kadaknath_hen">కడక్‌నాథ్ కోడి</string>
-    <string name="aseel_rooster">అసీల్ కోడిపుంజు</string>
-    <string name="brahma_hen">బ్రహ్మ కోడి</string>
-    <string name="leghorn_hen">లెగ్‌హార్న్ కోడి</string>
+    <!-- Transfer Status -->
+    <string name="status_pending">పెండింగ్</string>
+    <string name="status_pending_verification">ధృవీకరణ పెండింగ్</string>
+    <string name="status_completed">పూర్తయింది</string>
+    <string name="status_cancelled">రద్దు చేయబడింది</string>
+    <string name="status_disputed">వివాదం</string>
     
-    <!-- Locations -->
-    <string name="hyderabad">హైదరాబాద్</string>
-    <string name="vijayawada">విజయవాడ</string>
-    <string name="warangal">వరంగల్</string>
-    <string name="guntur">గుంటూరు</string>
-    <string name="tirupati">తిరుపతి</string>
-    <string name="karimnagar">కరీంనగర్</string>
+    <!-- Breeding & Lifecycle -->
+    <string name="breeding_title">పెంపకం నిర్వహణ</string>
+    <string name="lifecycle_tracking">జీవిత చక్రం ట్రాకింగ్</string>
+    <string name="add_record">రికార్డ్ జోడించు</string>
+    <string name="record_type">రికార్డ్ రకం</string>
+    <string name="record_date">రికార్డ్ తేదీ</string>
+    <string name="record_description">వివరణ</string>
+    <string name="record_notes">గమనికలు</string>
+    <string name="breeder_status">పెంపకందారు స్థితి</string>
+    <string name="mark_as_breeder">పెంపకందారుగా గుర్తించు</string>
+    <string name="mortality_record">మరణ రికార్డ్</string>
+    <string name="cause_of_death">మరణ కారణం</string>
+    <string name="mortality_date">మరణ తేదీ</string>
+    <string name="health_status">ఆరోగ్య స్థితి</string>
+    <string name="vaccination_schedule">టీకా షెడ్యూల్</string>
+    <string name="family_tree">కుటుంబ వృక్షం</string>
+    <string name="export_tree">వృక్షం ఎగుమతి చేయి</string>
     
-    <!-- Language Selection -->
-    <string name="select_language">భాష ఎంచుకోండి</string>
-    <string name="language">భాష</string>
-    <string name="change_language">భాష మార్చండి</string>
-    
-    <!-- Offline Support -->
-    <string name="offline_mode">ఆఫ్‌లైన్ మోడ్</string>
-    <string name="sync_pending">సింక్ పెండింగ్</string>
-    <string name="syncing">సింక్ చేస్తున్నాం...</string>
-    <string name="sync_complete">సింక్ పూర్తయింది</string>
-    <string name="no_internet_connection">ఇంటర్నెట్ కనెక్షన్ లేదు</string>
-    
-    <!-- Camera -->
-    <string name="take_photo">ఫోటో తీయండి</string>
-    <string name="choose_from_gallery">గ్యాలరీ నుండి ఎంచుకోండి</string>
-    <string name="photo_required">ఫోటో అవసరం</string>
-    <string name="uploading_photo">ఫోటో అప్‌లోడ్ చేస్తున్నాం...</string>
-    
-    <!-- Notifications -->
-    <string name="new_fowl_listed">మీ ప్రాంతంలో కొత్త కోడి లిస్ట్ చేయబడింది</string>
-    <string name="price_drop_alert">ధర తగ్గింపు అ���ర్ట్</string>
-    <string name="order_update">ఆర్డర్ అప్‌డేట్</string>
-    <string name="payment_successful">చెల్లింపు విజయవంతం</string>
-    
-    <!-- Festival Campaigns -->
-    <string name="sankranti_special">సంక్రాంతి స్పెషల్</string>
-    <string name="festival_offers">పండుగ ఆఫర్లు</string>
-    <string name="limited_time_offer">పరిమిత కాల ఆఫర్</string>
-    
-    <!-- AI Chatbot -->
-    <string name="ask_rustry_ai">రస్ట్రీ AI ని అడగండి</string>
-    <string name="how_can_i_help">ఈరోజు నేను మీకు ఎలా సహాయం చేయగలను?</string>
-    <string name="type_your_question">మీ ప్రశ్న టైప్ చేయండి...</string>
-    <string name="ai_assistant">AI అసిస్టెంట్</string>
-    
-    <!-- Traceability -->
-    <string name="fowl_history">కోడి చరిత్ర</string>
-    <string name="vaccination_records">టీకా రికార్డులు</string>
-    <string name="family_tree">కుటుంబ ���ృక్షం</string>
-    <string name="verified_transfer">వెరిఫైడ్ ట్రాన్స్‌ఫర్</string>
-    <string name="health_certificate">ఆరోగ్య సర్టిఫికేట్</string>
-    
-    <!-- Payment -->
-    <string name="payment">చెల్లింపు</string>
-    <string name="pay_now">ఇప్పుడే చెల్లించండి</string>
-    <string name="payment_methods">చెల్లింపు పద్ధతులు</string>
-    <string name="upi_payment">UPI చెల్లింపు</string>
-    <string name="card_payment">కార్డ్ చెల్లింపు</string>
-    <string name="cash_on_delivery">డెలివర���లో నగదు</string>
-    <string name="payment_failed">చెల్లింపు విఫలమైంది</string>
-    <string name="retry_payment">చెల్లింపు మళ్లీ ప్రయత్నించండి</string>
+    <!-- AI & Image Analysis -->
+    <string name="ai_analysis">AI విశ్లేషణ</string>
+    <string name="image_analysis">చిత్ర విశ్లేషణ</string>
+    <string name="select_image">చిత్రం ఎంచుకోండి</string>
+    <string name="camera">కెమెరా</string>
+    <string name="gallery">గ్యాలరీ</string>
+    <string name="analyzing_image">AI తో చిత్రం విశ్లేషిస్తోంది...</string>
+    <string name="analysis_complete">విశ్లేషణ పూర్తయింది</string>
+    <string name="confidence">విశ్వాసం</string>
+    <string name="detected_objects">గుర్తించిన వస్తువులు</string>
+    <string name="image_quality">చిత్ర నాణ్యత</string>
+    <string name="ai_recommendations">AI సిఫార్సులు</string>
+    <string name="breed_detection">జాతి గుర్తింపు</string>
+    <string name="health_assessment">ఆరోగ్య అంచనా</string>
+    <string name="disease_detection">వ్యాధి గుర్తింపు</string>
+    <string name="proof_verification">రుజువు ధృవీకరణ</string>
+    <string name="verify_proof_upload">రుజువు అప్‌లోడ్ ధృవీకరించు</string>
+    <string name="expected_color">ఆశించిన రంగు</string>
+    <string name="expected_age">ఆశించిన వయస్సు (నెలలు)</string>
+    <string name="expected_price">ఆశించిన ధర</string>
+    <string name="verify_with_ai">AI తో ధృవీకరించు</string>
+    <string name="verification_successful">ధృవీకరణ విజయవంతం</string>
+    <string name="verification_failed">ధృవీకరణ విఫలమైంది</string>
 </resources>
